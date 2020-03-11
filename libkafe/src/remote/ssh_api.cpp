@@ -55,7 +55,7 @@ namespace kafe::remote {
         char *output = (char *) malloc(output_size);
         unsigned long current_pos = 0;
         unsigned long last_line_pos = 0;
-        int ssh_n_read;
+        int ssh_n_read = 0;
         char buffer[buffer_size];
         char *line_buffer = (char *) malloc(256);
         do {
@@ -113,8 +113,8 @@ namespace kafe::remote {
     }
 
     RemoteResult SshApi::execute(const string &command, const bool print_output) const {
-        auto session = manager->get_or_create_session(log_listener->get_level());
-        auto ssh_session = session->get_ssh_session();
+        const auto *session = manager->get_or_create_session(log_listener->get_level());
+        auto *ssh_session = session->get_ssh_session();
 
         ssh_channel channel;
         int rc;
@@ -140,7 +140,7 @@ namespace kafe::remote {
                     "In directory <%s> executing <%s>", this->current_chdir.c_str(), command.c_str());
             cmd_buf << "cd " << this->current_chdir << " && ";
         } else {
-            timer = log_listener->emit_info_wt("Executing command %s", command.c_str());
+            timer = log_listener->emit_info_wt("Executing command <%s>", command.c_str());
         }
 
         cmd_buf << command;
@@ -195,11 +195,10 @@ namespace kafe::remote {
             remote_dir = remote_file_path;
         }
 
-        auto session = manager->get_or_create_session(log_listener->get_level());
-        auto ssh_session = session->get_ssh_session();
+        const auto *session = manager->get_or_create_session(log_listener->get_level());
+        auto *ssh_session = session->get_ssh_session();
 
-        auto scp = ssh_scp_new(ssh_session, SSH_SCP_WRITE, remote_dir.c_str());
-
+        auto *scp = ssh_scp_new(ssh_session, SSH_SCP_WRITE, remote_dir.c_str());
         if (nullptr == scp) {
             throw RuntimeException("SCP error [code %d: %s]", ssh_get_error_code(ssh_session),
                                    ssh_get_error(ssh_session));
@@ -253,11 +252,10 @@ namespace kafe::remote {
             remote_dir = remote_file_path;
         }
 
-        auto session = manager->get_or_create_session(log_listener->get_level());
-        auto ssh_session = session->get_ssh_session();
+        const auto *session = manager->get_or_create_session(log_listener->get_level());
+        auto *ssh_session = session->get_ssh_session();
 
-        auto scp = ssh_scp_new(ssh_session, SSH_SCP_WRITE, remote_dir.c_str());
-
+        auto *scp = ssh_scp_new(ssh_session, SSH_SCP_WRITE, remote_dir.c_str());
         if (nullptr == scp) {
             throw RuntimeException("SCP error [code %d: %s]", ssh_get_error_code(ssh_session),
                                    ssh_get_error(ssh_session));
@@ -288,10 +286,10 @@ namespace kafe::remote {
     }
 
     void SshApi::scp_download_file(const string &file, const string &remote_file) const {
-        auto session = manager->get_or_create_session(log_listener->get_level());
-        auto ssh_session = session->get_ssh_session();
+        const auto *session = manager->get_or_create_session(log_listener->get_level());
+        auto *ssh_session = session->get_ssh_session();
 
-        auto scp = ssh_scp_new(ssh_session, SSH_SCP_READ, remote_file.c_str());
+        auto *scp = ssh_scp_new(ssh_session, SSH_SCP_READ, remote_file.c_str());
         if (scp == nullptr) {
             throw RuntimeException("SSH error: %s", ssh_get_error(ssh_session));
         }
@@ -313,7 +311,7 @@ namespace kafe::remote {
         ssh_scp_accept_request(scp);
 
         ofstream out(file, ofstream::binary);
-        const int bsize = size > 4096 ? 4096 : (int) size;
+        const size_t bsize = size > 4096 ? 4096 : (int) size;
         char *buffer = (char *) malloc(bsize);
         int read_count;
         do {
@@ -331,10 +329,10 @@ namespace kafe::remote {
     }
 
     string SshApi::scp_download_file_as_string(const string &remote_file) const {
-        auto session = manager->get_or_create_session(log_listener->get_level());
-        auto ssh_session = session->get_ssh_session();
+        const auto *session = manager->get_or_create_session(log_listener->get_level());
+        auto *ssh_session = session->get_ssh_session();
 
-        auto scp = ssh_scp_new(ssh_session, SSH_SCP_READ, remote_file.c_str());
+        auto *scp = ssh_scp_new(ssh_session, SSH_SCP_READ, remote_file.c_str());
         if (scp == nullptr) {
             throw RuntimeException("SSH error: %s", ssh_get_error(ssh_session));
         }
@@ -351,14 +349,14 @@ namespace kafe::remote {
             throw RuntimeException("SSH error: %s", ssh_get_error(ssh_session));
         }
 
-        auto size = ssh_scp_request_get_size(scp);
+        const size_t size = ssh_scp_request_get_size(scp);
 
         ssh_scp_accept_request(scp);
 
         stringstream bfs;
-        const int bsize = size > 4096 ? 4096 : (int) size;
+        const size_t bsize = size > 4096 ? 4096 : (size_t) size;
         char *buffer = (char *) malloc(bsize);
-        int read_count;
+        int read_count = 0;
         do {
             read_count = ssh_scp_read(scp, buffer, bsize);
             if (read_count > 0) {

@@ -32,9 +32,10 @@ using namespace kafe::project;
 namespace kafe::remote {
     class SshManager {
         SshPool *pool;
+        const map<const string, const string> *envvals;
         const InventoryItem *item;
     public:
-        SshManager(const SshPool *pool, const InventoryItem *item);
+        SshManager(const SshPool *pool, const map<const string, const string> *envvals, const InventoryItem *item);
 
         const SshSession *get_or_create_session(LogLevel level);
     };

@@ -47,7 +47,8 @@ namespace kafe {
 
         void execute(
                 const Context &context,
-                const Inventory &inventory
+                const Inventory &inventory,
+                const vector<string> &extra_args
         );
     };
 }

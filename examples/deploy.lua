@@ -86,4 +86,4 @@ k.task('deploy', function()
     if not k.on('example_app', reload_service)
         then error('Failed to reload the service') end
 
-end
+end)

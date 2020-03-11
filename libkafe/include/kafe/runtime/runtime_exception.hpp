@@ -27,14 +27,10 @@ using namespace std;
 
 namespace kafe::runtime {
     class RuntimeException : public exception {
-        string message;
+        char* message;
 
     public:
-        RuntimeException();
-
         explicit RuntimeException(const char *format, ...);
-
-        explicit RuntimeException(const string *format, ...);
 
         [[nodiscard]] const char *what() const noexcept override;
     };

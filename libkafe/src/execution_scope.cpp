@@ -29,8 +29,10 @@ using namespace kafe::remote;
 namespace kafe {
     ExecutionScope::ExecutionScope(
             const Context &context,
-            const Inventory &inventory
-    ) : context(context), inventory(inventory) {
+            const Inventory &inventory,
+            const vector<string> &extra_args,
+            const string &project_file
+    ) : context(context), inventory(inventory), extra_args(extra_args), project_file(project_file) {
         this->ssh_pool = new SshPool();
         this->tasks = new TaskList();
         this->local = new LocalApi(context.get_log_listener());
@@ -127,7 +129,7 @@ namespace kafe {
     }
 
     string ExecutionScope::replace_env(const string &input) const {
-        auto envvals = context.get_envvals();
+        const auto *envvals = context.get_envvals();
         ostringstream out;
         size_t pos = 0;
         for (;;) {
@@ -141,9 +143,9 @@ namespace kafe {
             out.write(&*input.begin() + pos, subst_pos - pos);
             subst_pos += STRLEN_START_TOK;
             const char *key = input.substr(subst_pos, end_pos - subst_pos).c_str();
-            auto env_val = envvals.find(key);
+            auto env_val = envvals->find(key);
 
-            if (env_val != envvals.end()) {
+            if (env_val != envvals->end()) {
                 out << env_val->second;
             }
 
@@ -154,7 +156,27 @@ namespace kafe {
         return out.str();
     }
 
+    const string ExecutionScope::get_env(const string &key) const {
+        const auto *envvals = context.get_envvals();
+
+        auto env_val = envvals->find(key);
+
+        if (env_val != envvals->end()) {
+            return env_val->second;
+        }
+
+        return {};
+    }
+
     LocalApi *ExecutionScope::get_local_api() const {
         return local;
+    }
+
+    const vector<string> &ExecutionScope::get_extra_args() const {
+        return extra_args;
+    }
+
+    const string &ExecutionScope::get_project_file() const {
+        return project_file;
     }
 }

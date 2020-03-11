@@ -28,6 +28,7 @@ extern "C" {
 #endif
 
 #include <string>
+#include <map>
 #include "kafe/runtime/runtime_exception.hpp"
 #include "kafe/logging.hpp"
 
@@ -43,7 +44,7 @@ namespace kafe::remote {
     class SshSession {
         ssh_session session;
     public:
-        SshSession(const string &user, const string &host, int port, LogLevel level);
+        SshSession(const map<const string, const string> *envvals, const string &user, const string &host, unsigned int port, LogLevel level);
 
         [[nodiscard]] bool is_active() const;
 

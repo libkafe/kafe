@@ -74,15 +74,16 @@ namespace kafe {
 
             string unit;
             double duration;
-            if (duration_micros < 1000) {
-                unit = "μs";
-                duration = (double) duration_micros;
-            } else if (duration_micros < 100000) {
+
+            if (duration_micros > 1000000) {
+                unit = "s";
+                duration = (double) duration_micros / 1000000;
+            } else if (duration_micros > 1000) {
                 unit = "ms";
                 duration = (double) duration_micros / 1000;
-            } else if (duration_micros < 1000000) {
-                unit = "s";
-                duration = (double) duration_micros / 1000 / 1000;
+            } else {
+                unit = "μs";
+                duration = (double) duration_micros;
             }
 
             buffer << duration << unit;

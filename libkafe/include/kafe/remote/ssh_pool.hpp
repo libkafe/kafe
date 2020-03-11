@@ -27,7 +27,6 @@
 using namespace std;
 
 namespace kafe::remote {
-    // TODO: expire sessions?
     class SshPool {
         map<const string, const SshSession *> sessions = {};
 

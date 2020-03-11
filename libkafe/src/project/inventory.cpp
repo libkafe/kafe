@@ -104,7 +104,7 @@ namespace kafe::project {
     }
 
     Inventory::~Inventory() {
-        for (auto item : items) {
+        for (const auto *item : items) {
             delete (item);
         }
         items.clear();

@@ -56,7 +56,7 @@ namespace kafe::remote {
 
         void scp_download_file(const string &file, const string &remote_path) const;
 
-        string scp_download_file_as_string(const string &remote_file) const;
+        [[nodiscard]] string scp_download_file_as_string(const string &remote_file) const;
 
         void scp_upload_file_from_string(const string &content, const string &remote_file) const;
     };

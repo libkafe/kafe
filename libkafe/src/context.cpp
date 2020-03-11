@@ -43,7 +43,7 @@ namespace kafe {
         return log_listener;
     }
 
-    const map<const string, const string> &Context::get_envvals() const {
-        return envvals;
+    const map<const string, const string> *Context::get_envvals() const {
+        return &envvals;
     }
 }

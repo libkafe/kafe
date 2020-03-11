@@ -20,15 +20,15 @@
 #include "kafe/remote/ssh_manager.hpp"
 
 namespace kafe::remote {
-    SshManager::SshManager(const SshPool *pool, const InventoryItem *item)
-            : pool(const_cast<SshPool *>(pool)), item(item) {
+    SshManager::SshManager(const SshPool *pool, const map<const string, const string> *envvals, const InventoryItem *item)
+            : pool(const_cast<SshPool *>(pool)), envvals(envvals), item(item) {
     }
 
     const SshSession *SshManager::get_or_create_session(LogLevel level) {
         auto remote_id = item->remote_id();
 
         if (pool->has_session(remote_id)) {
-            auto current_session = pool->get_session(remote_id);
+            auto *current_session = pool->get_session(remote_id);
 
             if (current_session->is_active()) {
                 return current_session;
@@ -37,7 +37,8 @@ namespace kafe::remote {
             pool->remove_session(remote_id);
         }
 
-        auto session = new SshSession(
+        auto *session = new SshSession(
+                envvals,
                 item->get_user(),
                 item->get_host(),
                 item->get_port(),

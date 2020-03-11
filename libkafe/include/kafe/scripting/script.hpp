@@ -55,7 +55,7 @@ namespace kafe::scripting {
 
         void evaluate();
 
-        void invoke_function_by_ref(int reference);
+        void invoke_function_by_ref(int reference, const vector<string> &extra_args);
 
     private:
         void initialize();

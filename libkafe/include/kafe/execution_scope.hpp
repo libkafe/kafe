@@ -44,10 +44,14 @@ namespace kafe {
         vector<string> files_to_rm_on_destruct;
         map<string, string> values;
         LocalApi *local;
+        const vector<string> &extra_args;
+        const string& project_file;
     public:
         explicit ExecutionScope(
                 const Context &context,
-                const Inventory &inventory
+                const Inventory &inventory,
+                const vector<string> &extra_args,
+                const string& project_file
         );
 
         [[nodiscard]] const Context *get_context() const;
@@ -79,6 +83,12 @@ namespace kafe {
         [[nodiscard]] string replace_env(const string &input) const;
 
         [[nodiscard]] LocalApi *get_local_api() const;
+
+        const vector<string> &get_extra_args() const;
+
+        const string &get_project_file() const;
+
+        const string get_env(const string &key) const;
     };
 }
 

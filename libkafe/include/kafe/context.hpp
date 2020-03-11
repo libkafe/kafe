@@ -43,7 +43,7 @@ namespace kafe {
 
         virtual ~Context();
 
-        [[nodiscard]] const map<const string, const string> &get_envvals() const;
+        [[nodiscard]] const map<const string, const string> *get_envvals() const;
 
         [[nodiscard]] const string &get_environment() const;
 

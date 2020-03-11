@@ -32,14 +32,13 @@ namespace kafe::io {
     static const int ARCHIVE_FILE_BUFFER_S = 4096;
 
     string Archive::tmp_archive_from_directory(const string &directory) {
-        auto name = tmpnam(nullptr); // TODO replace
+        auto *name = tmpnam(nullptr); // TODO replace
         auto upload_name = string(name) + ".tar.gz";
         archive_from_directory(upload_name, directory);
         return upload_name;
     }
 
     // TODO: implement .kafeignore
-    // TODO: https://stackoverflow.com/questions/23330065/adding-directory-to-tarfile-with-libarchive
     void Archive::archive_from_directory(const string &archive_path, const string &directory) {
         if (!FileSystem::is_directory(directory)) {
             throw RuntimeException("Can not create archive - directory <%s> not found", directory.c_str());
@@ -70,7 +69,7 @@ namespace kafe::io {
         while (iter != end) {
             auto path_abs = std_fs::absolute(iter->path());
 
-            if (std_fs::is_directory(path_abs)) {
+            if (!FileSystem::is_file_or_symlink(path_abs) && !FileSystem::is_directory(path_abs)) {
                 ++iter;
                 continue;
             }
@@ -83,19 +82,32 @@ namespace kafe::io {
             }
             // ENDTODO
 
-            auto size = std_fs::file_size(path_abs);
+            auto is_dir = std_fs::is_directory(path_abs);
+            size_t size = 0;
+            if (!is_dir) {
+                size = std_fs::file_size(path_abs);
+            }
 
             struct stat buf{};
             stat(path_abs.c_str(), &buf);
 
             auto *entry = archive_entry_new();
             archive_entry_set_pathname(entry, path_rel.c_str());
-            archive_entry_set_size(entry, size);
-            archive_entry_set_filetype(entry, AE_IFREG);
+            archive_entry_set_filetype(entry, is_dir ? AE_IFDIR : AE_IFREG);
             archive_entry_set_perm(entry, buf.st_mode);
-//            archive_entry_set_mtime(entry, buf.st_mtim.tv_sec, 0);
-            archive_write_header(archive, entry);
             archive_entry_copy_stat(entry, &buf);
+
+            if (!is_dir) {
+                archive_entry_set_size(entry, size);
+            }
+            archive_write_header(archive, entry);
+
+            if (std_fs::is_directory(path_abs)) {
+                archive_write_finish_entry(archive);
+                archive_entry_free(entry);
+                ++iter;
+                continue;
+            }
 
             ifstream fin(path_abs.string(), ifstream::binary);
             char buffer[ARCHIVE_FILE_BUFFER_S];
@@ -105,6 +117,8 @@ namespace kafe::io {
             } while (fin);
 
             fin.close();
+
+            archive_write_finish_entry(archive);
             archive_entry_free(entry);
 
             ++iter;

@@ -78,14 +78,14 @@ namespace kafe {
 
     static string context_to_s(const vector<string> &context) {
         if (context.empty()) {
-            return "";
+            return {};
         }
 
         ostringstream ss;
 
         ss << IO_TTY_ANSI_COLOR_MAGENTA;
 
-        for (auto &ctx : context) {
+        for (const auto &ctx : context) {
             ss << '[' << ctx << "] ";
         }
 
@@ -108,7 +108,7 @@ namespace kafe {
             case ALL:
             case TRACE:
             case DEBUG:
-                color = "";
+                color = {};
                 break;
             case INFO:
                 color = IO_TTY_ANSI_COLOR_BLUE;
@@ -188,7 +188,7 @@ namespace kafe {
                 line.c_str()
         );
 
-        if (len > 1 && line[len - 1] != '\n') {
+        if (len > 0 && line[len - 1] != '\n') {
             fputs("\n", stdout);
         }
 

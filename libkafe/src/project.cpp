@@ -38,16 +38,20 @@ namespace kafe {
 
     void Project::execute(
             const Context &context,
-            const Inventory &inventory
+            const Inventory &inventory,
+            const vector<string> &extra_args
     ) {
-        auto scope = ExecutionScope(context, inventory);
+        auto main_file = FileSystem::absolute(project_file, std_fs::current_path()).string();
+        auto scope = ExecutionScope(context, inventory, extra_args, main_file);
         LoggingTimer timer;
 
         auto script = Script(scope);
         auto *logger = const_cast<ILogEventListener *>(scope.get_context()->get_log_listener());
 
+        logger->emit_debug("Resolved project file is <%s>", main_file.c_str());
+
         timer = logger->emit_info_wt("Loading project file <%s>", project_file.c_str());
-        script.load_file(project_file);
+        script.load_file(main_file);
         logger->emit_success(&timer, "Loaded project file <%s>", project_file.c_str());
 
         timer = logger->emit_info_wt("Evaluating project file <%s>", project_file.c_str());
@@ -55,21 +59,21 @@ namespace kafe {
         logger->emit_success(&timer, "Done evaluating project file <%s>", project_file.c_str());
 
         logger->emit_info("Verifying all tasks requested are defined");
-        for (auto &task_name : scope.get_context()->get_tasks()) {
+        for (const auto &task_name : scope.get_context()->get_tasks()) {
             if (!scope.get_tasks()->task_exists(task_name)) {
                 throw UnknownTaskException("Task <%s> is not defined in project", task_name.c_str());
             }
         }
         logger->emit_success("Tasks verified");
 
-        for (auto &task_name : scope.get_context()->get_tasks()) {
+        for (const auto &task_name : scope.get_context()->get_tasks()) {
             timer = logger->emit_info_wt("Executing task <%s>", task_name.c_str());
             logger->context_push(task_name);
 
             const Task *task = scope.get_tasks()->get_task(task_name);
             int ref = task->get_function_reference();
 
-            script.invoke_function_by_ref(ref);
+            script.invoke_function_by_ref(ref, extra_args);
 
             logger->context_pop();
             logger->emit_success(&timer, "Task <%s> completed", task_name.c_str());

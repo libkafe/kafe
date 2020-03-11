@@ -35,7 +35,57 @@ symlink all the deployment on all servers, reload services on all servers.
 SSH connections to remote servers are reused - one remote server with unique combination of host, user and port will 
 only have one connection created regardless of environment and role.
 
-## Available API values
+## Defining tasks
+
+Kafe tasks are defined in a file called `kafe.lua`. This file is usually placed in a directory that might or might not
+contain additional content related to the script itself. For example when automating software project deployments
+you could place `kafe.lua` at the root directory of your software project.
+
+Kafe CLI will always look for a file named `kafe.lua` in the current working directory.
+
+Tasks are defined at the root level of the file by invoking `k.task(...)` method.
+
+```lua
+local k = require('kafe')
+
+k.task('hello_world_task', function()
+    -- Your code here.
+end)
+```
+
+### Passing arguments to tasks from command line
+
+It is possible to pass arbitrary arguments to the tasks when invoking them from command line.
+Arguments are forwarded verbatim without modification, and are always of type string.
+
+Consider a task defined like in this example:
+
+```lua
+local k = require('kafe')
+
+k.task('hello_world_task', function(arg1, arg2)
+    print(arg1, arg2)
+    -- Your code here.
+end)
+```
+
+When invoked by command line `kafe do staging hello_world_task hello world` this task will receive
+arguments `arg1` with value `hello` and `arg2` with value `world`.
+
+**IMPORTANT:** task arguments are never mandatory. You have to validate arguments received by the task function
+before using them.
+
+**IMPORTANT:** take care when invoking multiple tasks at the same time. All tasks requested will receive
+all arguments as forwarded from the CLI.
+
+## Global values
+
+#### array[string] arg
+
+Program arguments where index `0` is full path to the current
+script (`<path>/kafe.lua`) with subsequent values (if any) containing extra arguments provided to the `do` command.
+
+## API values
 
 #### string k.version
 
@@ -57,7 +107,11 @@ Release version of libkafe.
 
 Current API level.
 
-## Available API methods
+#### int k.environment
+
+Current environment name.
+
+## API methods
 
 ### void k.require_api(int version)
 
@@ -67,6 +121,13 @@ Results in hard failure if:
 
 - API level of the environment is less than the one requested.
 
+##### An example of usage
+
+```lua
+local k = require('kafe')
+k.require_api(1) -- Fails if API compatibility level is not 1
+```
+
 ### void k.task(string name, function callable)
 
 Define a task that can be invoked when the script is executed.
@@ -74,6 +135,15 @@ Define a task that can be invoked when the script is executed.
 Results in hard failure if:
 
 - Task with given name already exists.
+
+##### An example of usage
+
+```lua
+local k = require('kafe')
+k.task('example_name', function()
+    -- Your code here
+end)
+```
 
 ### void k.add_inventory(string user, string host, int port, string env, string role)
 
@@ -83,6 +153,16 @@ Results in hard failure if:
 
 - Invalid port is provided (outside range 1-65535); or
 - The same server is added to inventory again (duplicate).
+
+##### An example of usage
+
+```lua
+local k = require('kafe')
+local username = k.getenv('USER') -- get username from env? :)
+k.add_inventory(username, 'one.example.org', 22, 'staging', 'example')
+k.add_inventory(username, 'two.example.org', 22, 'production', 'example')
+k.add_inventory(username, 'three.example.org', 22, 'production', 'example')
+```
 
 ### bool k.on(string role, function callable [,bool skip_empty_inv = true])
 
@@ -102,6 +182,23 @@ Results in hard failure if:
 - Called in a way that results in nested context; or
 - If there are no servers in given inventory and `skip_empty_env` is not true.
 
+##### An example of usage
+
+```lua
+local k = require('kafe')
+
+k.task('example_task', function()
+    local my_todo = function()
+        -- ... your code here
+    end
+
+    -- Execute function my_todo on all servers with role example_role
+    -- Fail the script if execution failed for any reason
+    if not k.on('example_role', my_todo)
+        then error('Could not execute my_todo for some reason') end
+end)
+```
+
 ### void k.within(string directory_path)
 
 Execute all subsequent *remote* commands in given context within given directory.
@@ -112,6 +209,21 @@ Effectively prepends `cd <dir> &&` to all subsequent shell commands in the same 
 subsequent remote shell commands in directory that does not exist will result in their
 hard failure.
 
+##### An example of usage
+
+```lua
+local k = require('kafe')
+
+k.task('example_task', function()
+    local my_todo = function()
+        k.within('/tmp')
+        k.shell('ls') -- will print contents of remote /tmp in stdout
+    end
+
+    k.on('example_role', my_todo)
+end)
+```
+
 ### (string stdout, string stderr, int exit_code) k.exec(string command [, bool print_output = true])
 
 Execute a remote shell command and return it's outputs along with exit code. 
@@ -119,10 +231,42 @@ Execute a remote shell command and return it's outputs along with exit code.
 Second optional argument indicates if the remote output should also be 
 logged in output of the tool. This option is enabled by default.
 
+##### An example of usage
+
+```lua
+local k = require('kafe')
+
+k.task('example_task', function()
+    local my_todo = function()
+        local out, err, code = k.exec('whoami')
+        -- out: remote stdout
+        -- err: remote stderr
+        -- code: remote exit code
+    end
+
+    k.on('example_role', my_todo)
+end)
+```
+
 ### bool k.shell(string command)
 
 Execute a remote shell command, log output and return exit status as boolean. Will
 return true if exit status of the remote command is `0`, false otherwise.
+
+##### An example of usage
+
+```lua
+local k = require('kafe')
+
+k.task('example_task', function()
+    local my_todo = function()
+        local result = k.shell('whoami')
+        -- result: boolean true if whoami exit code == 0, false otherwise
+    end
+
+    k.on('example_role', my_todo)
+end)
+```
 
 ### string k.archive_dir_tmp(string directory)
 
@@ -135,6 +279,17 @@ Results in hard failure if:
 
 - Archive directory does not exist.
 
+##### An example of usage
+
+```lua
+local k = require('kafe')
+
+k.task('example_task', function()
+    local archive = k.archive_dir_tmp('/home/example/some_folder')
+    -- archive: string path to .tar.gz file
+end)
+```
+
 ### void k.archive_dir(string directory, string archive_file)
 
 Create a `.tar.gz` archive from given *local* directory and get the full path to the archive oncre created.
@@ -144,6 +299,16 @@ Results in hard failure if:
 
 - Archive directory does not exist; or
 - File or directory exists at the path provided in `archive_file`.
+
+##### An example of usage
+
+```lua
+local k = require('kafe')
+
+k.task('example_task', function()
+    k.archive_dir_tmp('/home/example/some_folder', '/home/example/some_archive.tar.gz')
+end)
+```
 
 ### bool k.upload_file(string local_file, string remote_file)
 
@@ -156,6 +321,26 @@ This command returns true if upload succeeded, and false on failure.
 
 **IMPORTANT:** any existing remote files will be silently overwritten.
 
+##### An example of usage
+
+```lua
+local k = require('kafe')
+
+k.task('example_task', function()
+    local archive = k.archive_dir_tmp('/home/example/some_folder')
+
+    local my_todo = function()
+        if not k.shell('mkdir -p /tmp/example')
+            then error('Failed to ensure remote directory') end
+
+        if not k.upload_file(archive, '/tmp/example/')
+            then error('Failed to upload archive to remote directory') end
+    end
+
+    k.on('example_role', my_todo)
+end)
+```
+
 ### bool k.download_file(string local_file, string remote_file)
 
 Download remote file from remote server to given local path.
@@ -163,6 +348,21 @@ Download remote file from remote server to given local path.
 This command returns true if download succeeded, and false on failure.
 
 **IMPORTANT:** any existing local files will be silently overwritten.
+
+##### An example of usage
+
+```lua
+local k = require('kafe')
+
+k.task('example_task', function()
+    local my_todo = function()
+        if not k.download_file('/local/path/example.txt', '/remote/path/example.txt')
+            then error('Failed to download remote file') end
+    end
+
+    k.on('example_role', my_todo)
+end)
+```
 
 ### bool k.upload_str(string content, string remote_file)
 
@@ -174,11 +374,42 @@ This command returns true if upload succeeded, and false on failure.
 
 **IMPORTANT:** any existing remote files will be silently overwritten.
 
+##### An example of usage
+
+```lua
+local k = require('kafe')
+
+k.task('example_task', function()
+    local my_todo = function()
+        if not k.upload_str('Hello world!', '/remote/path/example.txt')
+            then error('Failed to upload text to remote file') end
+    end
+
+    k.on('example_role', my_todo)
+end)
+```
+
 ### string|bool k.download_str(string remote_file)
 
 Download remote file from remote server as string.
 
 This command returns content of the file as string if download succeeded, and false on failure.
+
+##### An example of usage
+
+```lua
+local k = require('kafe')
+
+k.task('example_task', function()
+    local my_todo = function()
+        local content = k.download_str('/remote/path/example.txt')
+        if not content then error('Failed to download remote file as text') end
+        print(content) -- Prints contents of the remote file to stdout
+    end
+
+    k.on('example_role', my_todo)
+end)
+```
 
 ## void k.define(string key, any value)
 
@@ -192,6 +423,25 @@ Accepts any value that can be cast to string as second argument.
 
 **IMPORTANT:** existing values using the same key will be silently overwritten.
 
+##### An example of usage
+
+```lua
+local k = require('kafe')
+
+k.task('example_task', function()
+    k.define('remote_path', '/tmp/example')
+
+    local my_todo = function()
+        -- Try to create /tmp/example/ using placeholder
+        if not k.shell('mkdir -p {{remote_path}}')
+            -- ... or fail with meaningful error
+            then error('Could not create remote path {{remote_path}}') end
+    end
+
+    k.on('example_role', my_todo)
+end)
+```
+
 ## string k.strfvars(string text)
 
 Replace any placeholder values of format `{{key}}` to their values as defined
@@ -200,6 +450,17 @@ using `k.define(...)`.
 **IMPORTANT:** keys are case sensitive.
 
 **IMPORTANT:** non-existent values will be replaced with empty string.
+
+##### An example of usage
+
+```lua
+local k = require('kafe')
+
+k.define('remote_path', '/tmp/example')
+k.define('remote_file', 'hello.txt')
+local path = k.strfvars('{{remote_path}}/{{remote_file}}')
+print(path) -- prints /tmp/example/hello.txt
+```
 
 ## string k.strfenv(string text)
 
@@ -210,17 +471,70 @@ executing environment variables.
 
 **IMPORTANT:** non-existent values will be replaced with empty string.
 
+**IMPORTANT:** script environment and Lua standard `os.getenv(...)` MIGHT return different results when executing
+environment is not CLI (future compatibility). You should always use `k.strfenv` and `k.getenv` to access
+environment variables from within Kafe scripts.
+
+##### An example of usage
+
+```lua
+local k = require('kafe')
+
+local hello = k.strfvars('Hello, my name is {{USER}}!')
+print(hello) -- prints Hello, my name is <username>!
+```
+
+## string|nil k.getenv(string key)
+
+Get an environment value. Returns nil if environment value is not defined.
+
+**IMPORTANT:** keys are case sensitive.
+
+**IMPORTANT:** script environment and Lua standard `os.getenv(...)` MIGHT return different results when executing
+environment is not CLI (future compatibility). You should always use `k.strfenv` and `k.getenv` to access
+environment variables from within Kafe scripts.
+
+##### An example of usage
+
+```lua
+local k = require('kafe')
+
+local user = k.getenv('USER')
+print(user) -- prints <username>
+```
+
 ## (string stdout, int code) k.local_exec(string command [, bool print_output = true])
 
 Execute local shell command and return it's stdout and exit code.
  
 Second optional argument indicates if the remote output should also be 
 logged in output of the tool. This option is enabled by default.
+```lua
+local k = require('kafe')
+
+k.task('example_task', function()
+        local out, err, code = k.local_exec('whoami')
+        -- out: local stdout
+        -- err: local stderr
+        -- code: local exit code
+end)
+```
 
 ## bool k.local_shell(string command)
 
 Execute a local shell command, log output and return exit status as boolean. Will
 return true if exit status of the local command is `0`, false otherwise.
+
+##### An example of usage
+
+```lua
+local k = require('kafe')
+
+k.task('example_task', function()
+    local result = k.local_shell('whoami')
+    -- result: boolean true if whoami exit code == 0, false otherwise
+end)
+```
 
 ## void k.local_within(string directory_path)
 
@@ -229,5 +543,16 @@ Execute all subsequent *local* commands within given directory, regardless of th
 Results in hard failure if:
 
 - Given directory does not exist.
+
+##### An example of usage
+
+```lua
+local k = require('kafe')
+
+k.task('example_task', function()
+    k.local_within('/tmp')
+    k.local_shell('ls') -- will print contents of local /tmp in stdout
+end)
+```
 
 

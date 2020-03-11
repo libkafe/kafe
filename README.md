@@ -4,14 +4,15 @@ remote systems administration tasks.
 
 ## Downloads
 
-See [releases](https://github.com/libkafe/kafe/releases).
+See [available binary packages](DOWNLOAD.md) for current stable release or [releases](https://github.com/libkafe/kafe/releases) for 
+all available downloads and historic versions.
 
 Binary builds are available for:
 
-- **CentOS** and **RHEL** versions 7<sup>1</sup>, 8
-- **Fedora** versions 31, 32, 33
-- **Ubuntu** versions 18.04, 19.10, 20.04
-- **Debian** versions 9, 10, 11
+- **CentOS** and **RHEL** versions [7<sup>1</sup>](./DOWNLOAD.md#centos-and-rhel-7), [8](./DOWNLOAD.md#centos-and-rhel-8)
+- **Fedora** versions [31](./DOWNLOAD.md#fedora-31), [32](./DOWNLOAD.md#fedora-32), [33](./DOWNLOAD.md#fedora-33)
+- **Ubuntu** versions [18.04](./DOWNLOAD.md#ubuntu-1804), [19.10](./DOWNLOAD.md#ubuntu-1910), [20.04](./DOWNLOAD.md#ubuntu-2004)
+- **Debian** versions [9](./DOWNLOAD.md#debian-9), [10](./DOWNLOAD.md#debian-10), [11](./DOWNLOAD.md#debian-11)
 
 You should be able to use these binary packages for any derivative distributions.
 For example, Elementary OS 5.1 users can use Ubuntu 18.04 packages, since Elementary OS is based on Ubuntu 18.04.
@@ -92,6 +93,19 @@ execute following Kafe CLI command:
 
 When executed, Kafe CLI will look for a file named `kafe.lua` in the current working direcory. This
 file will be interpreted and requested tasks from it will be executed against all relevant remote servers.
+
+#### SSH and SSH authentication
+
+Kafe is using SSH for remote command execution and file uploads. It will attempt to use SSH agent, any known local
+SSH keys, as well as GSSAPI-WITH-MIC and password based authentication to authenticate to remote hosts.
+
+If no SSH agent is present, you can set the passphrase to be used to decrypt any encrypted private keys using
+environment variable `KAFE_SSH_PKEY_PASS`. You can set password to be used for password based authentication using 
+environment variable named `KAFE_SSH_USER_PASS`.
+
+**IMPORTANT:** Kafe will not automatically add remote keys to known hosts nor will it provide a way to do so interactively.
+It is your responsibility to ensure remote host keys are added to known hosts before attempting to connect to remote hosts
+using Kafe. Any attempts to connect to remote hosts with unknown or changed host keys will fail.
 
 ### Debugging
 

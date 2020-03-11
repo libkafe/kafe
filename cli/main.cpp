@@ -117,10 +117,11 @@ int main(int argc, char *argv[]) {
     }
 
     if (0 == strcmp("do", argv[1])) {
-        if (4 != argc) {
-            cerr << "Command expects exactly two arguments - environment name an"
-                    " comma separated task list.\n"
-                    "Example: kafe do staging task1,task2,task3";
+        if (4 > argc) {
+            cerr << "Command expects exactly at least two arguments - environment name and "
+                    "a comma separated task list with any number of arbitrary arguments "
+                    "to forward to the tasks being invoked.\n"
+                    "Example: kafe do staging task1,task2,task3 <arg, arg, arg>";
             print_usage();
             return 1;
         }
@@ -136,19 +137,23 @@ int main(int argc, char *argv[]) {
             envvals.insert(p);
         }
 
-
         string environment = argv[2];
         string task_list_s = argv[3];
         vector<string> task_list_v = split_csv_arguments(task_list_s, ',');
+
+        vector<string> extra_args;
+        for (int ii = 4; ii < argc; ++ii) {
+            extra_args.emplace_back(argv[ii]);
+        }
 
         try {
             auto project = Project("kafe.lua");
             auto logger = Logger();
             auto context = Context(envvals, environment, task_list_v, &logger);
             auto inventory = Inventory();
-            project.execute(context, inventory);
+            project.execute(context, inventory, extra_args);
         } catch (RuntimeException &e) {
-            cerr << e.what();
+            cerr << e.what() << endl;
             return 1;
         }
         return 0;

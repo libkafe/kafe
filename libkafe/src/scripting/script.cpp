@@ -18,7 +18,6 @@
  */
 
 #include <map>
-#include <mutex>
 
 #include "kafe/version.hpp"
 #include "kafe/execution_scope.hpp"
@@ -30,7 +29,6 @@
 
 using namespace kafe::io;
 
-static mutex state_lock;
 static map<lua_State *, const ExecutionScope *> state;
 
 static inline ExecutionScope *get_scope(lua_State *L) {
@@ -43,20 +41,18 @@ static inline ExecutionScope *get_scope(lua_State *L) {
     return const_cast<ExecutionScope *>(res->second);
 }
 
-// TODO - review error messages
 namespace kafe::scripting {
-
     // Lua stdout/stderr
     // TODO: split line by line
     static int lua_logger_print(lua_State *L, bool is_err) {
-        auto scope = get_scope(L);
+        auto *scope = get_scope(L);
         int n_args = lua_gettop(L);
         lua_getglobal(L, "tostring");
         for (int i = 1; i <= n_args; i++) {
             lua_pushvalue(L, -1);
             lua_pushvalue(L, i);
             lua_call(L, 1, 1);
-            auto line = lua_tostring(L, -1);
+            const auto *line = lua_tostring(L, -1);
             if (nullptr == line) {
                 return luaL_error(L, "'tostring' must return a string to 'print'");
             }
@@ -83,9 +79,7 @@ namespace kafe::scripting {
     // end Lua stdout/stderr
 
     Script::Script(const ExecutionScope &scope) : scope(scope) {
-        state_lock.lock();
-
-        auto lst = luaL_newstate();
+        auto *lst = luaL_newstate();
         auto entry = pair<lua_State *, const ExecutionScope *>(lst, &scope);
         state.insert(entry);
 
@@ -97,23 +91,20 @@ namespace kafe::scripting {
         lua_register(lua_state, "print_err", lua_logger_print_err);
 
         initialize();
-
-        state_lock.unlock();
     }
 
     Script::~Script() {
-        state_lock.lock();
         state.erase(this->lua_state);
         lua_close(this->lua_state);
-        state_lock.unlock();
     }
 
     void Script::load_file(const string &script_file) {
         auto status = luaL_loadfile(this->lua_state, script_file.c_str());
 
         if (status) {
-            auto lua_error = lua_tostring(this->lua_state, -1);
-            throw ScriptEngineException("%s", lua_error);
+            const auto *lua_error = lua_tostring(this->lua_state, -1);
+            const auto with_vars = scope.replace_vars(lua_error);
+            throw ScriptEngineException("%s", with_vars.c_str());
         }
     }
 
@@ -121,18 +112,25 @@ namespace kafe::scripting {
         int status = lua_pcall(this->lua_state, 0, LUA_MULTRET, 0);
 
         if (status) {
-            auto lua_error = lua_tostring(this->lua_state, -1);
-            throw ScriptEvaluationException("%s", lua_error);
+            const auto *lua_error = lua_tostring(this->lua_state, -1);
+            const auto with_vars = scope.replace_vars(lua_error);
+            throw ScriptEvaluationException("%s", with_vars.c_str());
         }
     }
 
-    void Script::invoke_function_by_ref(const int reference) {
+    void Script::invoke_function_by_ref(const int reference, const vector<string> &extra_args) {
         lua_rawgeti(this->lua_state, LUA_REGISTRYINDEX, reference);
-        int status = lua_pcall(this->lua_state, 0, 0, 0);
+
+        for (const auto &var : extra_args) {
+            lua_pushstring(this->lua_state, var.c_str());
+        }
+
+        unsigned long status = lua_pcall(this->lua_state, extra_args.size(), 0, 0);
 
         if (status) {
-            auto lua_error = lua_tostring(this->lua_state, -1);
-            throw ScriptInvocationException("%s", lua_error);
+            const auto *lua_error = lua_tostring(this->lua_state, -1);
+            const auto with_vars = scope.replace_vars(lua_error);
+            throw ScriptInvocationException("%s", with_vars.c_str());
         }
     }
 
@@ -164,7 +162,7 @@ namespace kafe::scripting {
 
     // TODO: allow kDSN format - <env+role://user@host:port>
     int lua_api_inventory_add(lua_State *L) {
-        auto scope = get_scope(L);
+        const auto *scope = get_scope(L);
 
         if (5 != lua_gettop(L)) {
             return luaL_error(L, "Expected five arguments - username, hostname, port, environment, role");
@@ -190,19 +188,18 @@ namespace kafe::scripting {
             return luaL_error(L, "Argument five must be a string - role");
         }
 
-        auto username = luaL_checkstring(L, 1);
-        auto hostname = luaL_checkstring(L, 2);
+        const auto *username = luaL_checkstring(L, 1);
+        const auto *hostname = luaL_checkstring(L, 2);
         auto port = luaL_checkinteger(L, 3);
-        auto environment = luaL_checkstring(L, 4);
-        auto role = luaL_checkstring(L, 5);
+        const auto *environment = luaL_checkstring(L, 4);
+        const auto *role = luaL_checkstring(L, 5);
 
         if (port < 1 || port > 65535) {
             return luaL_error(L, "Invalid port value <%s>", port);
         }
 
-        auto item = new InventoryItem(username, hostname, (unsigned int) port, environment, role);
-
-        auto inventory = const_cast<Inventory *>(scope->get_inventory());
+        auto *item = new InventoryItem(username, hostname, (unsigned int) port, environment, role);
+        auto *inventory = const_cast<Inventory *>(scope->get_inventory());
 
         if (inventory->item_exists(*item)) {
             return luaL_error(L, "Duplicate inventory item <%s>", item->to_string().c_str());
@@ -223,7 +220,7 @@ namespace kafe::scripting {
     }
 
     int lua_api_task_define(lua_State *L) {
-        auto scope = get_scope(L);
+        const auto *scope = get_scope(L);
 
         if (2 != lua_gettop(L)) {
             return luaL_error(L, "Expected two arguments, task name and task function");
@@ -237,11 +234,11 @@ namespace kafe::scripting {
             return luaL_error(L, "Argument two must be a function");
         }
 
-        auto task_name = luaL_checkstring(L, 1);
-        auto tasks = const_cast<TaskList *>(scope->get_tasks());
+        const auto *task_name = luaL_checkstring(L, 1);
+        auto *tasks = const_cast<TaskList *>(scope->get_tasks());
 
         if (tasks->task_exists(task_name)) {
-            auto other = tasks->get_task(task_name);
+            const auto *other = tasks->get_task(task_name);
             return luaL_error(
                     L,
                     "Duplicate task definition with name <%s>, already defined at %s",
@@ -258,7 +255,7 @@ namespace kafe::scripting {
                       + string(":")
                       + to_string(ar.currentline);
 
-        auto task = new Task(
+        auto *task = new Task(
                 task_name,
                 function_reference,
                 source
@@ -275,7 +272,7 @@ namespace kafe::scripting {
     }
 
     int lua_api_on_role_invoke(lua_State *L) {
-        auto scope = get_scope(L);
+        auto *scope = get_scope(L);
         auto *logger = const_cast<ILogEventListener *>(scope->get_context()->get_log_listener());
 
         if (scope->has_current_api()) {
@@ -307,7 +304,7 @@ namespace kafe::scripting {
             skip_empty = static_cast<bool>(lua_toboolean(L, 3));
         }
 
-        auto role = luaL_checkstring(L, 1);
+        const auto *role = luaL_checkstring(L, 1);
         auto function_reference = luaL_ref(L, LUA_REGISTRYINDEX);
 
         auto inventory_items = scope->get_inventory()->find_for_scope(
@@ -327,11 +324,12 @@ namespace kafe::scripting {
         logger->context_push(string(role));
 
         bool failed = false;
-        for (auto item : inventory_items) {
+        for (const auto *item : inventory_items) {
             auto remote_id = item->remote_id();
             logger->emit_info("Entering node <%s>", remote_id.c_str());
             logger->context_push(remote_id);
-            auto ssh_manager = SshManager(scope->get_ssh_pool(), item);
+            const auto *envvals = scope->get_context()->get_envvals();
+            auto ssh_manager = SshManager(scope->get_ssh_pool(), envvals, item);
             auto ssh_api = SshApi(&ssh_manager, logger);
 
             scope->set_current_remote(&ssh_api);
@@ -343,8 +341,9 @@ namespace kafe::scripting {
 
             if (status) {
                 failed = true;
-                auto lua_error = lua_tostring(L, -1);
-                logger->emit_warning("%s", lua_error);
+                const auto *lua_error = lua_tostring(L, -1);
+                const auto with_vars = scope->replace_vars(lua_error);
+                logger->emit_warning("%s", with_vars.c_str());
                 logger->context_pop();
                 break;
             }
@@ -359,7 +358,7 @@ namespace kafe::scripting {
     }
 
     int lua_api_remote_within(lua_State *L) {
-        auto scope = get_scope(L);
+        const auto *scope = get_scope(L);
 
         if (!scope->has_current_api()) {
             return luaL_error(L, "Can not change remote directory when not in remote scope");
@@ -370,7 +369,7 @@ namespace kafe::scripting {
         }
 
         auto directory = scope->replace_vars(luaL_checkstring(L, 1));
-        auto api = const_cast<SshApi *>(scope->get_current_api());
+        auto *api = const_cast<SshApi *>(scope->get_current_api());
 
         scope->get_context()->get_log_listener()->emit_info(
                 "Changing remote working directory for current context to <%s>",
@@ -383,7 +382,7 @@ namespace kafe::scripting {
     }
 
     int lua_api_remote_exec(lua_State *L) {
-        auto scope = get_scope(L);
+        const auto *scope = get_scope(L);
 
         if (!scope->has_current_api()) {
             return luaL_error(L, "Can not execute remote command when not in remote scope");
@@ -408,7 +407,7 @@ namespace kafe::scripting {
         }
 
         auto command = scope->replace_vars(luaL_checkstring(L, 1));
-        auto api = scope->get_current_api();
+        const auto *api = scope->get_current_api();
 
         auto result = api->execute(command, print_output);
 
@@ -420,7 +419,7 @@ namespace kafe::scripting {
     }
 
     int lua_api_remote_shell(lua_State *L) {
-        auto scope = get_scope(L);
+        const auto *scope = get_scope(L);
 
         if (!scope->has_current_api()) {
             return luaL_error(L, "Can not execute remote command when not in remote scope");
@@ -437,7 +436,7 @@ namespace kafe::scripting {
         }
 
         auto command = scope->replace_vars(luaL_checkstring(L, 1));
-        auto api = scope->get_current_api();
+        const auto *api = scope->get_current_api();
 
         auto result = api->execute(command, true);
 
@@ -447,10 +446,13 @@ namespace kafe::scripting {
     }
 
     int lua_api_archive_dir_tmp(lua_State *L) {
-        auto scope = get_scope(L);
+        auto *scope = get_scope(L);
 
         if (scope->has_current_api()) {
-            // TODO: issue warning
+            scope->get_context()->get_log_listener()->emit_warning(
+                    "Creating archive while connected to remote server. Archive will be created per each"
+                    "remote server. This is usually not optimal."
+            );
         }
 
         if (1 != lua_gettop(L) || !lua_isstring(L, 1)) {
@@ -481,10 +483,13 @@ namespace kafe::scripting {
     }
 
     int lua_api_archive_dir(lua_State *L) {
-        auto scope = get_scope(L);
+        const auto *scope = get_scope(L);
 
         if (scope->has_current_api()) {
-            // TODO: issue warning
+            scope->get_context()->get_log_listener()->emit_warning(
+                    "Creating archive while connected to remote server. Archive will be created per each"
+                    "remote server. This is usually not optimal."
+            );
         }
 
         if (2 != lua_gettop(L) || !lua_isstring(L, 1) || !lua_isstring(L, 2)) {
@@ -514,7 +519,7 @@ namespace kafe::scripting {
     }
 
     int lua_api_upload_file(lua_State *L) {
-        auto scope = get_scope(L);
+        const auto *scope = get_scope(L);
 
         if (!scope->has_current_api()) {
             return luaL_error(L, "Can not upload files when not in remote scope");
@@ -539,7 +544,7 @@ namespace kafe::scripting {
 
         auto local_file_norm = FileSystem::normalize(local_file, scope->get_local_api()->get_chdir());
 
-        auto api = scope->get_current_api();
+        const auto *api = scope->get_current_api();
 
         auto timer = scope->get_context()->get_log_listener()->emit_info_wt(
                 "Uploading local file <%s> to remote <%s>",
@@ -569,7 +574,7 @@ namespace kafe::scripting {
     }
 
     int lua_api_download_file(lua_State *L) {
-        auto scope = get_scope(L);
+        const auto *scope = get_scope(L);
 
         if (!scope->has_current_api()) {
             return luaL_error(L, "Can not download files when not in remote scope");
@@ -594,7 +599,7 @@ namespace kafe::scripting {
 
         auto local_file_norm = FileSystem::normalize(local_file, scope->get_local_api()->get_chdir());
 
-        auto api = scope->get_current_api();
+        const auto *api = scope->get_current_api();
 
         auto timer = scope->get_context()->get_log_listener()->emit_info_wt(
                 "Downloading file <%s> from remote <%s>",
@@ -624,7 +629,7 @@ namespace kafe::scripting {
     }
 
     int lua_api_upload_str(lua_State *L) {
-        auto scope = get_scope(L);
+        const auto *scope = get_scope(L);
 
         if (!scope->has_current_api()) {
             return luaL_error(L, "Can not upload files when not in remote scope");
@@ -647,7 +652,7 @@ namespace kafe::scripting {
         auto content = scope->replace_vars(luaL_checkstring(L, 1));
         auto remote_file = scope->replace_vars(luaL_checkstring(L, 2));
 
-        auto api = scope->get_current_api();
+        const auto *api = scope->get_current_api();
 
         auto timer = scope->get_context()->get_log_listener()->emit_info_wt(
                 "Uploading string as file to remote <%s>",
@@ -676,7 +681,7 @@ namespace kafe::scripting {
     }
 
     int lua_api_download_str(lua_State *L) {
-        auto scope = get_scope(L);
+        const auto *scope = get_scope(L);
 
         if (!scope->has_current_api()) {
             return luaL_error(L, "Can not download files when not in remote scope");
@@ -693,7 +698,7 @@ namespace kafe::scripting {
         }
 
         auto remote_file = scope->replace_vars(luaL_checkstring(L, 1));
-        auto api = scope->get_current_api();
+        const auto *api = scope->get_current_api();
         auto timer = scope->get_context()->get_log_listener()->emit_info_wt(
                 "Downloading string from remote <%s>",
                 remote_file.c_str()
@@ -720,7 +725,7 @@ namespace kafe::scripting {
     }
 
     int lua_api_define(lua_State *L) {
-        auto scope = get_scope(L);
+        auto *scope = get_scope(L);
 
         int n_args = lua_gettop(L);
 
@@ -728,7 +733,7 @@ namespace kafe::scripting {
             return luaL_error(L, "Expected two arguments");
         }
 
-        auto key = luaL_checkstring(L, 1);
+        const auto *key = luaL_checkstring(L, 1);
         auto value = scope->replace_vars(lua_tostring(L, 2));
 
         scope->get_context()->get_log_listener()->emit_debug(
@@ -743,14 +748,14 @@ namespace kafe::scripting {
     }
 
     int lua_api_strfvars(lua_State *L) {
-        auto scope = get_scope(L);
+        const auto *scope = get_scope(L);
         int n_args = lua_gettop(L);
 
         if (1 != n_args) {
             return luaL_error(L, "Expected one argument");
         }
 
-        auto input = luaL_checkstring(L, 1);
+        const auto *input = luaL_checkstring(L, 1);
 
         try {
             lua_pushstring(L, scope->replace_vars(input).c_str());
@@ -762,21 +767,36 @@ namespace kafe::scripting {
     }
 
     int lua_api_strfenv(lua_State *L) {
-        auto scope = get_scope(L);
+        const auto *scope = get_scope(L);
         int n_args = lua_gettop(L);
 
         if (1 != n_args) {
             return luaL_error(L, "Expected one argument");
         }
 
-        auto input = luaL_checkstring(L, 1);
+        const auto *input = luaL_checkstring(L, 1);
         lua_pushstring(L, scope->replace_env(input).c_str());
 
         return 1;
     }
 
+    int lua_api_getenv(lua_State *L) {
+        const auto *scope = get_scope(L);
+        int n_args = lua_gettop(L);
+
+        if (1 != n_args) {
+            return luaL_error(L, "Expected one argument");
+        }
+
+        const auto *input = luaL_checkstring(L, 1);
+        const string val = scope->get_env(input);
+        lua_pushstring(L, val.empty() ? nullptr : val.c_str());
+
+        return 1;
+    }
+
     int lua_api_local_within(lua_State *L) {
-        auto scope = get_scope(L);
+        const auto *scope = get_scope(L);
 
         if (1 != lua_gettop(L) || !lua_isstring(L, 1)) {
             luaL_error(L, "Expected one argument - string");
@@ -800,7 +820,7 @@ namespace kafe::scripting {
     }
 
     int lua_api_local_exec(lua_State *L) {
-        auto scope = get_scope(L);
+        const auto *scope = get_scope(L);
 
         if (scope->has_current_api()) {
             auto debug = get_lua_debug(L);
@@ -840,7 +860,7 @@ namespace kafe::scripting {
     }
 
     int lua_api_local_shell(lua_State *L) {
-        auto scope = get_scope(L);
+        const auto *scope = get_scope(L);
 
         if (scope->has_current_api()) {
             auto debug = get_lua_debug(L);
@@ -887,6 +907,7 @@ namespace kafe::scripting {
             {"define",          lua_api_define},
             {"strfvars",        lua_api_strfvars},
             {"strfenv",         lua_api_strfenv},
+            {"getenv",         lua_api_getenv},
             {"local_exec",      lua_api_local_exec},
             {"local_shell",     lua_api_local_shell},
             {"local_within",    lua_api_local_within},
@@ -894,7 +915,8 @@ namespace kafe::scripting {
     };
 
     extern "C" int lua_module_init(lua_State *L) {
-#if LUA_VERSION_NUM > 501
+        const auto *scope = get_scope(L);
+
         lua_newtable(L);
         luaL_setfuncs(L, module_def, 0);
 
@@ -913,16 +935,38 @@ namespace kafe::scripting {
         lua_pushinteger(L, LIBKAFE_API_LEVEL);
         lua_setfield(L, -2, "api_level");
 
+        lua_pushstring(L, scope->get_context()->get_environment().c_str());
+        lua_setfield(L, -2, "environment");
+
         lua_pushvalue(L, -1);
-#else
-        luaL_register(L, LIBKAFE_LUA_MODULE_NAME, module_def);
-#endif
+
         return 1;
     }
 
     extern "C" void lua_bootstrap(lua_State *L) {
+        const auto *scope = get_scope(L);
+        auto extra_args = scope->get_extra_args();
+
+        // Init "kafe" module
         luaL_requiref(L, LIBKAFE_LUA_MODULE_NAME, lua_module_init, false);
         lua_pop(L, 1);
+
+        // Populate "arg"
+        lua_createtable(L, extra_args.size() + 1, 0);
+        int arg_table = lua_gettop(L);
+
+        //// Push project file name
+        lua_pushstring(L, scope->get_project_file().c_str());
+        lua_rawseti(L, arg_table, 0);
+
+        //// Push remaining args
+        long long index = 1;
+        for (auto arg: extra_args) {
+            lua_pushstring(L, arg.c_str());
+            lua_rawseti(L, arg_table, index);
+            ++index;
+        }
+        lua_setglobal(L, "arg");
     }
     // END integration with Lua
 

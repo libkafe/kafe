@@ -114,7 +114,7 @@ namespace kafe::local {
         FILE *p = ::popen(cmd.c_str(), "r");
 
         if (nullptr == p) {
-            return LocalShellResult("", -1);
+            return LocalShellResult({}, -1);
         }
 
         auto output = read_out(p, print_output);

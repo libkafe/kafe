@@ -1,2 +1,10 @@
+* Wed Mar 11 2020 Matiss Treinis <mrtreinis@gmail.com> - 1.1.0
+- Logging timer no longer reports nonsense values (#1).
+- Environment name is now available from within scripts (#2).
+- Archives created using the API now have proper timestamps and metadata (#3).
+- Empty error messages are no longer possible in libkafe to avoid ambiguous errors (#4).
+- Extra arguments to "do" command are now forwarded to task function (#5).
+- SSH key passphrase and user password can now be defined in executing environment (#6).
+
 * Wed Mar 4 2020 Matiss Treinis <mrtreinis@gmail.com> - 1.0.0
 - Initial public release

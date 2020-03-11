@@ -22,10 +22,6 @@
 #include "kafe/runtime/runtime_exception.hpp"
 
 namespace kafe::runtime {
-    RuntimeException::RuntimeException() {
-        message = exception::what();
-    }
-
     RuntimeException::RuntimeException(const char *format, ...) {
         char buffer[4096];
         va_list args;
@@ -35,16 +31,7 @@ namespace kafe::runtime {
         this->message = buffer;
     }
 
-    RuntimeException::RuntimeException(const string *format, ...) {
-        char buffer[4096];
-        va_list args;
-        va_start(args, format);
-        vsnprintf(buffer, 4096, format->c_str(), args);
-        va_end(args);
-        this->message = buffer;
-    }
-
     const char *RuntimeException::what() const noexcept {
-        return message.c_str();
+        return message;
     }
 }
