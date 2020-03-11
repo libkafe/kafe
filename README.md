@@ -242,6 +242,12 @@ is planned for level 2 expansion:
 A side-goal of API level 2 is to retain compatibility with API level 1, meaning, if at all possible, all scripts written
 for API level 1 will work just fine with API level 2 compatible libkafe.
 
+## Reporting issues
+
+To report a bug or request a feature, open a ticket at [https://github.com/libkafe/kafe/issues](https://github.com/libkafe/kafe/issues).
+
+For security related issues, please follow our [Vulnerability Disclosure Policy](./SECURITY.md).
+
 ## History
 
 Kafe is nearly complete rewrite of OPM (Optional Package Manager) - a command-line tool I wrote several years ago for my
