@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.11.4)
 
 # IMPORTANT: updating version might require update in package dependencies at the end of this file.
-set(KAFE_VERSION "1.1.0")
-set(KAFE_VERSION_INT 10)
+set(KAFE_VERSION "1.1.1")
+set(KAFE_SOVERSION "1.1")
+set(KAFE_VERSION_INT 11)
 set(KAFE_VERSION_DEP_NEXT_MAJOR "2.0.0")
 
 project(kafe_all VERSION ${KAFE_VERSION} LANGUAGES CXX C)

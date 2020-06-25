@@ -11,7 +11,7 @@ Binary builds are available for:
 
 - **CentOS** and **RHEL** versions [7<sup>1</sup>](./DOWNLOAD.md#centos-and-rhel-7), [8](./DOWNLOAD.md#centos-and-rhel-8)
 - **Fedora** versions [31](./DOWNLOAD.md#fedora-31), [32](./DOWNLOAD.md#fedora-32), [33](./DOWNLOAD.md#fedora-33)
-- **Ubuntu** versions [18.04](./DOWNLOAD.md#ubuntu-1804), [19.10](./DOWNLOAD.md#ubuntu-1910), [20.04](./DOWNLOAD.md#ubuntu-2004)
+- **Ubuntu** versions [18.04](./DOWNLOAD.md#ubuntu-1804), [19.10](./DOWNLOAD.md#ubuntu-1910), [20.04](./DOWNLOAD.md#ubuntu-2004), [20.10](./DOWNLOAD.md#ubuntu-2010)
 - **Debian** versions [9](./DOWNLOAD.md#debian-9), [10](./DOWNLOAD.md#debian-10), [11](./DOWNLOAD.md#debian-11)
 
 You should be able to use these binary packages for any derivative distributions.

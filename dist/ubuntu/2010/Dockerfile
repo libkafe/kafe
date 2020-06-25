@@ -1,4 +1,4 @@
-FROM debian:10
+FROM ubuntu:20.10
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get upgrade -y && \
@@ -6,14 +6,14 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
         wget \
         cmake \
         build-essential \
-        clang-7 \
+        clang-10 \
         liblua5.3-dev \
         libcurl4-gnutls-dev \
         libarchive-dev \
         libssh-dev \
         libgit2-dev
 
-ENV CC /usr/bin/clang-7
-ENV CXX /usr/bin/clang++-7
+ENV CC /usr/bin/clang-10
+ENV CXX /usr/bin/clang++-10
 
-CMD /kafe/dist/debian/10/build-dist.sh
+CMD /kafe/dist/ubuntu/2010/build-dist.sh

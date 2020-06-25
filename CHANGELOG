@@ -1,3 +1,6 @@
+* Wed Jun 25 2020 Matiss Treinis <mrtreinis@gmail.com> - 1.1.1
+- Update build configuration, define SOVERSION. No functional changes.
+
 * Wed Mar 11 2020 Matiss Treinis <mrtreinis@gmail.com> - 1.1.0
 - Logging timer no longer reports nonsense values (#1).
 - Environment name is now available from within scripts (#2).

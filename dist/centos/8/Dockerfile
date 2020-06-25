@@ -15,7 +15,7 @@ RUN yum -y update && \
         libssh-devel \
         libgit2-devel
 
-ENV CC /usr/bin/clang-8
-ENV CXX /usr/bin/clang++-8
+ENV CC /usr/bin/clang-9
+ENV CXX /usr/bin/clang++-9
 
 CMD /kafe/dist/centos/8/build-dist.sh

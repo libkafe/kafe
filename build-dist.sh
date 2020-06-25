@@ -94,6 +94,17 @@ cp build/ubuntu/2004/kafe-cli*.deb build-artifact/ubuntu-2004/
 cp build/ubuntu/2004/libkafe*.deb build-artifact/ubuntu-2004/
 for f in build-artifact/ubuntu-2004/*; do mv -v "$f" $(echo "$f" | sed "s/\.deb/\.ubu2004\.deb/"); done
 
+# Ubuntu 20.10
+if [[ "$(docker images -q "kafe/ubuntu:2010-build" 2> /dev/null)" == "" ]]; then
+  docker build -t kafe/ubuntu:2010-build dist/ubuntu/2010
+fi
+
+docker run -it --rm -v `pwd`:/kafe kafe/ubuntu:2010-build
+mkdir -p build-artifact/ubuntu-2010/
+cp build/ubuntu/2010/kafe-cli*.deb build-artifact/ubuntu-2010/
+cp build/ubuntu/2010/libkafe*.deb build-artifact/ubuntu-2010/
+for f in build-artifact/ubuntu-2010/*; do mv -v "$f" $(echo "$f" | sed "s/\.deb/\.ubu2010\.deb/"); done
+
 # Fedora 31
 if [[ "$(docker images -q "kafe/fedora:31-build" 2> /dev/null)" == "" ]]; then
   docker build -t kafe/fedora:31-build dist/fedora/31

@@ -41,7 +41,7 @@ file(GLOB_RECURSE _SOURCES "src/*.[hc]pp")
 add_library(kafe_lib_shared SHARED ${_HEADERS} ${_SOURCES})
 add_library(kafe_lib_static STATIC ${_HEADERS} ${_SOURCES})
 
-set_target_properties(kafe_lib_shared PROPERTIES OUTPUT_NAME "kafe")
+set_target_properties(kafe_lib_shared PROPERTIES OUTPUT_NAME "kafe" SOVERSION ${KAFE_SOVERSION})
 set_target_properties(kafe_lib_static PROPERTIES OUTPUT_NAME "kafe")
 
 if (LUA_VERSION_MAJOR EQUAL 5 AND LUA_VERSION_MINOR EQUAL 4)
