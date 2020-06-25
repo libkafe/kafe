@@ -75,7 +75,92 @@ much larger investment in writing the automation tasks.
 
 ### Examples
 
-You can find examples of how to write Kafe scripts in the [examples](./examples) directory.
+Example bellow aims to demonstrate how to deploy a simple web software application to a remote host. Remember
+that although Kafe can be used to deploy software, it is purpose agnostic - you can use it for all kinds of 
+remote automation commands since you can run raw bash commands, make uploads and download, etc. 
+
+```lua
+-- Include the API
+local k = require('kafe')
+-- Make sure our deployment script is run with compatible libkafe
+k.require_api(1)
+
+-- The username to use for SSH connection
+local username = os.getenv('USER');
+
+-- Add a server to inventory
+k.add_inventory(username, 'server01.example.com', 22, 'production', 'app')
+
+-- Define a deployment task
+k.task('deploy', function()
+    -- Define a version of the application to use in deployment.
+    local version = os.time(os.date('!*t'))
+
+    -- Define the path to deploy to. The current source will be symlinked to
+    -- remote path /var/www/app/current/
+    k.define('deploy_to', '/var/www/app')
+    k.define('version', version)
+
+    -- Create an archive for deployment from ./build directory
+    local archive = k.archive_dir_tmp('./build')
+
+    -- Deployment subtask
+    local deploy = function()
+        -- Create deployment root directory
+        -- {{deploy_to}} will be replaced with /var/www/app from k.define(...) call above
+        if not k.shell('mkdir -p {{deploy_to}}')
+            then error('Could not create deployment directory target') end
+
+        k.within('{{deploy_to}}')
+
+        -- Create release directory
+        if not k.shell('mkdir -p releases/{{version}}/')
+            then error('Could not create release root directory') end
+
+        -- Upload and unpack the archive
+        k.upload_file(archive, 'releases/{{version}}/upload.tar.gz')
+
+        if not k.shell('tar -xf releases/{{version}}/upload.tar.gz -C releases/{{version}}')
+            then error('Could not unpack uploaded archive') end
+
+        -- Cleanup the uploaded archive, we don't need it anymore
+        if not k.shell('rm releases/{{version}}/upload.tar.gz')
+            then error('Failed to remove uploaded archive') end
+
+        -- Ensure other users within the same usergroup can manage releases (optional)
+        if not k.shell('chmod g+rw releases && chmod g+rw -Rf releases/')
+            then error('Failed to fix chmod') end
+    end
+
+    -- Symlink current release subtask
+    local symlink = function()
+        k.within('{{deploy_to}}')
+
+        if not k.shell('ln -nsfv releases/{{version}}/ current')
+            then error('Failed to update the symlink to the new version') end
+    end
+
+    -- Remove all but last 3 releases subtask
+    local remove_old_releases = function()
+        k.within('{{deploy_to}}/releases/')
+
+        if not k.shell('ls -1tr | head -n -3 | xargs -d \'\\n\' rm -rf --') then
+            error('Failed to remove old releases') end
+    end
+
+    -- Execute all subtasks in order - deploy, symlink, remove_old_releases
+    -- symlink and remove_old_releases will not be run if deploy task fails
+    -- for any reason.
+    if k.on('app', deploy) then
+        k.on('app', symlink)
+        k.on('app', remove_old_releases)
+    end
+end)
+```
+
+#### More examples
+
+You can find more examples on how to write Kafe scripts in the [examples](./examples) directory.
 
 ### Scripting API
 
