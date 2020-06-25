@@ -76,8 +76,8 @@ much larger investment in writing the automation tasks.
 ### Examples
 
 Example bellow aims to demonstrate how to deploy a simple web software application to a remote host. Remember
-that although Kafe can be used to deploy software, it is purpose agnostic - you can use it for all kinds of 
-remote automation commands since you can run raw bash commands, make uploads and download, etc. 
+that although Kafe can be used to deploy software, it is designed to be purpose agnostic - you can use it for
+all kinds of remote automation tasks since you can run raw shell commands, make uploads and downloads, etc. 
 
 ```lua
 -- Include the API
@@ -156,6 +156,12 @@ k.task('deploy', function()
         k.on('app', remove_old_releases)
     end
 end)
+```
+
+Above example deployment task can be invoked from command line using a shell command like this -
+
+```shell script
+kafe do production deploy
 ```
 
 #### More examples
