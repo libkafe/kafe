@@ -2,10 +2,9 @@ Kafe (`/ka'fe:/`) is an open source scriptable systems automation toolkit. It pr
 with local and remote systems over SSH. Kafe is well suited for application deployment and similar 
 remote systems administration tasks.
 
-## Downloads
+## Installation
 
-See [available binary packages](DOWNLOAD.md) for current stable release or [releases](https://github.com/libkafe/kafe/releases) for 
-all available downloads and historic versions.
+See [available package downloads and repositories](DOWNLOAD.md).
 
 Binary builds are available for:
 
@@ -15,7 +14,7 @@ Binary builds are available for:
 - **Debian** versions [9](./DOWNLOAD.md#debian-9), [10](./DOWNLOAD.md#debian-10), [11](./DOWNLOAD.md#debian-11)
 
 You should be able to use these binary packages for any derivative distributions.
-For example, Elementary OS 5.1 users can use Ubuntu 18.04 packages, since Elementary OS is based on Ubuntu 18.04.
+For example, Elementary OS 5.1 users can use Ubuntu 18.04 packages, since Elementary OS 5.1 is based on Ubuntu 18.04.
 
 **macOS is officially supported**, but binary builds are not provided. See bellow how to compile 
 Kafe from source - building Kafe on macOS is fairly trivial.
@@ -236,11 +235,6 @@ just fine provided all external dependencies are met.
 If you would like to contribute your distribution to the above list, you can implement a build for it. 
 Just follow the samples already present in [dist](./dist) folder. Any contributions adding support for
 new distributions must contain all current non-EOL distribution versions, including RC versions, if any.
-
-#### Does Kafe have APT / YUM repositories?
-
-Not at the moment. Having repositories for CentOS, RHEL, Fedora, Debian and Ubuntu is something that I plan
-to do in the future.
 
 #### Is Kafe available on Homebrew?
 
