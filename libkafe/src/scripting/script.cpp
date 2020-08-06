@@ -447,6 +447,7 @@ namespace kafe::scripting {
 
     int lua_api_archive_dir_tmp(lua_State *L) {
         auto *scope = get_scope(L);
+        auto *logger = const_cast<ILogEventListener *>(scope->get_context()->get_log_listener());
 
         if (scope->has_current_api()) {
             scope->get_context()->get_log_listener()->emit_warning(
@@ -467,7 +468,7 @@ namespace kafe::scripting {
                 directory_norm.c_str()
         );
 
-        auto path = Archive::tmp_archive_from_directory(directory_norm);
+        auto path = Archive::tmp_archive_from_directory(directory_norm, logger);
 
         scope->get_context()->get_log_listener()->emit_success(
                 &timer,
@@ -484,6 +485,7 @@ namespace kafe::scripting {
 
     int lua_api_archive_dir(lua_State *L) {
         const auto *scope = get_scope(L);
+        auto *logger = const_cast<ILogEventListener *>(scope->get_context()->get_log_listener());
 
         if (scope->has_current_api()) {
             scope->get_context()->get_log_listener()->emit_warning(
@@ -507,7 +509,7 @@ namespace kafe::scripting {
                 archive_norm.c_str()
         );
 
-        Archive::archive_from_directory(archive_norm, directory_norm);
+        Archive::archive_from_directory(archive_norm, directory_norm, logger);
 
         scope->get_context()->get_log_listener()->emit_success(
                 &timer,

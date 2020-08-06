@@ -32,9 +32,10 @@ using namespace std;
 namespace kafe::io {
     class Archive {
     public:
-        static string tmp_archive_from_directory(const string &directory);
+        static string tmp_archive_from_directory(const string &directory, kafe::ILogEventListener *p_listener);
 
-        static void archive_from_directory(const string &archive_path, const string &directory);
+        static void
+        archive_from_directory(const string &archive_path, const string &directory, ILogEventListener *p_listener);
     };
 }
 

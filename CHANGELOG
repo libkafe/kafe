@@ -1,4 +1,7 @@
-* Wed Jun 25 2020 Matiss Treinis <mrtreinis@gmail.com> - 1.1.1
+* Thu Aug 6 2020 Matiss Treinis <mrtreinis@gmail.com> - 1.1.2
+- Add support for .kafeignore files.
+
+* Thu Jun 25 2020 Matiss Treinis <mrtreinis@gmail.com> - 1.1.1
 - Update build configuration, define SOVERSION. No functional changes.
 
 * Wed Mar 11 2020 Matiss Treinis <mrtreinis@gmail.com> - 1.1.0

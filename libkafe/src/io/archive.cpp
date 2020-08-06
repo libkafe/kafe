@@ -19,6 +19,8 @@
 
 #include <fstream>
 #include <iostream>
+#include <kafe/logging.hpp>
+#include "fnmatch.h"
 
 #include "kafe/io/archive.hpp"
 #include "kafe/io/file_system.hpp"
@@ -31,21 +33,43 @@ using namespace kafe::runtime;
 namespace kafe::io {
     static const int ARCHIVE_FILE_BUFFER_S = 4096;
 
-    string Archive::tmp_archive_from_directory(const string &directory) {
+    vector<string> read_ignore_file(std_fs::path *i_file) {
+        vector<string> patterns = {};
+        std::ifstream file(*i_file);
+        std::string str;
+        while (std::getline(file, str))
+        {
+            if (str.empty()) {
+                continue;
+            }
+
+            if (str[0] == '#') {
+              continue;
+            }
+
+            patterns.push_back(str);
+        }
+        return patterns;
+    }
+
+    string Archive::tmp_archive_from_directory(const string &directory, ILogEventListener *logger) {
         auto *name = tmpnam(nullptr); // TODO replace
         auto upload_name = string(name) + ".tar.gz";
-        archive_from_directory(upload_name, directory);
+        archive_from_directory(upload_name, directory, logger);
         return upload_name;
     }
 
-    // TODO: implement .kafeignore
-    void Archive::archive_from_directory(const string &archive_path, const string &directory) {
+    void Archive::archive_from_directory(
+        const string &archive_path,
+        const string &directory,
+        ILogEventListener *logger
+    ) {
         if (!FileSystem::is_directory(directory)) {
             throw RuntimeException("Can not create archive - directory <%s> not found", directory.c_str());
         }
 
         if (FileSystem::is_file_or_symlink(archive_path)) {
-            throw RuntimeException("Can not create archive - path <%s> exists", directory.c_str());
+            throw RuntimeException("Can not create archive - path <%s> exists", archive_path.c_str());
         }
 
         auto archive_dir_name = std_fs::path(archive_path).parent_path();
@@ -57,6 +81,13 @@ namespace kafe::io {
             }
         } else {
             FileSystem::mkdirs(archive_dir_name);
+        }
+
+        vector<string> ignore_patterns = {};
+        auto ignore_file = std_fs::path(directory).append(".kafeignore");
+        if (std_fs::is_regular_file(ignore_file)) {
+          logger->emit_debug("Loading .kafeignore file from %s", ignore_file.c_str());
+          ignore_patterns = read_ignore_file(&ignore_file);
         }
 
         std_fs::recursive_directory_iterator iter(directory), end;
@@ -86,6 +117,22 @@ namespace kafe::io {
             size_t size = 0;
             if (!is_dir) {
                 size = std_fs::file_size(path_abs);
+            }
+
+            bool is_ignored = false;
+
+            for (const auto& pattern : ignore_patterns) {
+                auto res = fnmatch(pattern.c_str(), path_rel.c_str(), FNM_PATHNAME | FNM_EXTMATCH | FNM_LEADING_DIR);
+                if (FNM_NOMATCH != res) {
+                    logger->emit_debug("Ignoring %s, matched by <%s>", path_rel.c_str(), pattern.c_str());
+                    is_ignored = true;
+                    break;
+                }
+            }
+
+            if (is_ignored) {
+                ++iter;
+                continue;
             }
 
             struct stat buf{};

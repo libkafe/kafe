@@ -7,7 +7,7 @@ This documentation assumes virtual module `kafe` is included as variable `k`, as
 local k = require('kafe')
 ```
 
-For future compatibility, all method calls are prefixed with this variable because more modules might be 
+For future compatibility, all method calls are prefixed with this variable because more modules might be
 introduced at some point.
 
 ### Before using the scripting API
@@ -19,12 +19,12 @@ The scripting API does not interact with remote privilege escalation tools (`su`
 escalate privileges as needed by using the native tools provided by the remote system. Remote prompts are not
 supported at this time. One way to deal with privilege escalation is to use `sudo` command with
 preconfigured sudo lines in `sudoers` configuration. You should only add the commands you intend to execute
-to `sudoers` and never allow wildcard sudo commands to be executed without password prompt 
+to `sudoers` and never allow wildcard sudo commands to be executed without password prompt
 (e.g. `ALL=(ALL:ALL) NOPASSWD: ALL`). Instead, try to design your remote automation as lean as root-less as possible.
 
 All command invocation is strictly sequential - there is no parallelization and parallel invocation of the
-scripting API is not supported - even though you can achieve this in Lua. This is a conscious design decision. 
-Parallelization of remote management tasks might seem a good idea at first, but it rarely is - parallelization makes 
+scripting API is not supported - even though you can achieve this in Lua. This is a conscious design decision.
+Parallelization of remote management tasks might seem a good idea at first, but it rarely is - parallelization makes
 remote error handling much more difficult, might leave remote systems in an inconsistent state and requires a
 much larger investment in writing the automation tasks. In remote application deployment, parallelization is often used
 to ensure all remote hosts receive deployments nearly at the same time. Parallelization is rarely a good solution
@@ -32,7 +32,7 @@ to this - you should split your tasks in groups of smaller tasks instead. For ex
 by splitting up the tasks like this - upload all artifacts to all servers, unpack all artifacts on all servers,
 symlink all the deployment on all servers, reload services on all servers.
 
-SSH connections to remote servers are reused - one remote server with unique combination of host, user and port will 
+SSH connections to remote servers are reused - one remote server with unique combination of host, user and port will
 only have one connection created regardless of environment and role.
 
 ## Defining tasks
@@ -226,9 +226,9 @@ end)
 
 ### (string stdout, string stderr, int exit_code) k.exec(string command [, bool print_output = true])
 
-Execute a remote shell command and return it's outputs along with exit code. 
+Execute a remote shell command and return it's outputs along with exit code.
 
-Second optional argument indicates if the remote output should also be 
+Second optional argument indicates if the remote output should also be
 logged in output of the tool. This option is enabled by default.
 
 ##### An example of usage
@@ -290,9 +290,9 @@ k.task('example_task', function()
 end)
 ```
 
-### void k.archive_dir(string directory, string archive_file)
+### void k.archive_dir(string archive_file, string directory)
 
-Create a `.tar.gz` archive from given *local* directory and get the full path to the archive oncre created.
+Create a `.tar.gz` archive from given *local* directory and get the full path to the archive once created.
 The resulting archive will be created in the path given as second argument on the *local* machine.
 
 Results in hard failure if:
@@ -306,7 +306,7 @@ Results in hard failure if:
 local k = require('kafe')
 
 k.task('example_task', function()
-    k.archive_dir_tmp('/home/example/some_folder', '/home/example/some_archive.tar.gz')
+    k.archive_dir('/home/example/some_archive.tar.gz', '/home/example/some_folder')
 end)
 ```
 
@@ -366,7 +366,7 @@ end)
 
 ### bool k.upload_str(string content, string remote_file)
 
-Upload text as file to remote server in given path. `remote_file` must be valid file. 
+Upload text as file to remote server in given path. `remote_file` must be valid file.
 
 This command returns true if upload succeeded, and false on failure.
 
@@ -506,8 +506,8 @@ print(user) -- prints <username>
 ## (string stdout, int code) k.local_exec(string command [, bool print_output = true])
 
 Execute local shell command and return it's stdout and exit code.
- 
-Second optional argument indicates if the remote output should also be 
+
+Second optional argument indicates if the remote output should also be
 logged in output of the tool. This option is enabled by default.
 ```lua
 local k = require('kafe')
@@ -555,4 +555,33 @@ k.task('example_task', function()
 end)
 ```
 
+## `.kafeignore` support for file archiving
+#### New in version 1.1.2
 
+It is possible to create an exclusion list of files to be excluded from archival operations. This is done by
+creating a `.kafeignore` file at the root of the directory containing pattern list of all files and directories to
+be ignored by the archival operations.
+
+The pattern matching is implemented using GNU fnmatch() with flags `FNM_PATHNAME | FNM_EXTMATCH | FNM_LEADING_DIR`.
+See https://www.gnu.org/software/libc/manual/html_node/Wildcard-Matching.html
+and https://www.man7.org/linux/man-pages/man3/fnmatch.3.html for more information.
+
+**IMPORTANT:** `.kafeignore` patterns are NOT exactly compatible with other ignore formats, such as `.gitignore`,
+    nested `.kafeignore` files are not supported - only the topmost ignore file will be parsed,
+    and `.kafeignore` file itself is NOT automatically ignored, since you might want to preserve it in some cases.
+
+#### Basic pattern examples
+
+```ignorelang
+# Ignore the directory, all subdirectories and files.
+some_dir
+
+# Ignore all subdirectories and files, retain the directory itself.
+some_dir/*
+
+# Ignore anything in subdirectories, but retain directory and immediate descendants.
+some_dir/**/*
+
+# Ignore everything in the directory, except for file or directory named `some_file`
+some_dir/!(some_file)
+```
