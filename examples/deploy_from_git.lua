@@ -90,7 +90,7 @@ k.task('deploy', function()
     end
 
     -- Upload and unpack the new version, and get status of the invocation
-    local did_deploy = not k.on('example_app', deploy)
+    local did_deploy = k.on('example_app', deploy)
 
     -- Clean up local workspace
     if not k.local_shell('rm -rf {{local_workspace}}')
