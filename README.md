@@ -1,5 +1,5 @@
-Kafe (`/ka'fe:/`) is an open source scriptable systems automation toolkit. It provides a basic set of features to interact 
-with local and remote systems over SSH. Kafe is well suited for application deployment and similar 
+Kafe (`/ka'fe:/`) is an open source scriptable systems automation toolkit. It provides a basic set of features to interact
+with local and remote systems over SSH. Kafe is well suited for application deployment and similar
 remote systems administration tasks.
 
 ## Installation
@@ -16,10 +16,10 @@ Binary builds are available for:
 You should be able to use these binary packages for any derivative distributions.
 For example, Elementary OS 5.1 users can use Ubuntu 18.04 packages, since Elementary OS 5.1 is based on Ubuntu 18.04.
 
-**macOS is officially supported**, but binary builds are not provided. See bellow how to compile 
-Kafe from source - building Kafe on macOS is fairly trivial.
+**macOS is officially supported** - Kafe can be installed compiling from source (see bellow) or using
+[homebrew vendor tap](https://github.com/libkafe/homebrew-kafe).
 
-<sup>1</sup> - EL7 does not ship with Lua 5.3. We currently use 
+<sup>1</sup> - EL7 does not ship with Lua 5.3. We currently use
 [Cheese](http://www.nosuchhost.net/~cheese/fedora/packages/epel-7/x86_64/cheese-release.html) repository
 to obtain Lua 5.3 on EL7.
 
@@ -33,7 +33,7 @@ You can also build the sources locally using `CMake`. See bellow for instruction
 
 ## Writing Kafe scripts
 
-You can declare your server inventory and automation tasks in Kafe scripts. Kafe scripts are written in 
+You can declare your server inventory and automation tasks in Kafe scripts. Kafe scripts are written in
 [Lua](https://www.lua.org) programming language. Kafe CLI looks for a file named `kafe.lua`
 in current working directory to execute the tasks from.
 
@@ -62,8 +62,8 @@ name a few. Each inventory item can have one or more roles and environment.
 
 All remote servers in Kafe must be placed in inventory. Inventory is a list of remote servers with associated
 roles and environments. Each server can have one or more roles and can be present in one or more environments.
-Each inventory line uniquely combines remote server address, one role, and one environment. To add the same 
-remote server to multiple roles and environments duplicate the inventory definition line. 
+Each inventory line uniquely combines remote server address, one role, and one environment. To add the same
+remote server to multiple roles and environments duplicate the inventory definition line.
 
 #### Execution of tasks
 
@@ -76,7 +76,7 @@ much larger investment in writing the automation tasks.
 
 Example bellow aims to demonstrate how to deploy a simple web software application to a remote host. Remember
 that although Kafe can be used to deploy software, it is designed to be purpose agnostic - you can use it for
-all kinds of remote automation tasks since you can run raw shell commands, make uploads and downloads, etc. 
+all kinds of remote automation tasks since you can run raw shell commands, make uploads and downloads, etc.
 
 ```lua
 -- Include the API
@@ -190,7 +190,7 @@ Kafe is using SSH for remote command execution and file uploads. It will attempt
 SSH keys, as well as GSSAPI-WITH-MIC and password based authentication to authenticate to remote hosts.
 
 If no SSH agent is present, you can set the passphrase to be used to decrypt any encrypted private keys using
-environment variable `KAFE_SSH_PKEY_PASS`. You can set password to be used for password based authentication using 
+environment variable `KAFE_SSH_PKEY_PASS`. You can set password to be used for password based authentication using
 environment variable named `KAFE_SSH_USER_PASS`.
 
 **IMPORTANT:** Kafe will not automatically add remote keys to known hosts nor will it provide a way to do so interactively.
@@ -209,7 +209,7 @@ ALL = 0, TRACE = 1, DEBUG = 2, INFO = 3, SUCCESS = 4, WARNING = 5, ERROR = 6, NO
 
 ## Kafe and libkafe
 
-Kafe is written entirely in C++ - it is distributed as a native binary (kafe-cli) and a shared library (libkafe) 
+Kafe is written entirely in C++ - it is distributed as a native binary (kafe-cli) and a shared library (libkafe)
 with C++ development headers made available for embedding (libkafe-dev).
 
 ## Operating system support
@@ -217,7 +217,7 @@ with C++ development headers made available for embedding (libkafe-dev).
 Kafe should work with any UNIX-like operating system, provided all external dependencies are met.
 Binary packages are provided for:
 
-- **CentOS** and **RHEL** versions 7, 8 
+- **CentOS** and **RHEL** versions 7, 8
 - **Fedora** versions 31, 32, 33
 - **Ubuntu** versions 18.04, 19.10, 20.04
 - **Debian** versions 9, 10, 11
@@ -232,7 +232,7 @@ fine on older versions of macOS, but no testing has been done on them. If you ar
 to latest macOS version, you should still try to install Kafe from sources. It will most likely work
 just fine provided all external dependencies are met.
 
-If you would like to contribute your distribution to the above list, you can implement a build for it. 
+If you would like to contribute your distribution to the above list, you can implement a build for it.
 Just follow the samples already present in [dist](./dist) folder. Any contributions adding support for
 new distributions must contain all current non-EOL distribution versions, including RC versions, if any.
 
@@ -278,13 +278,13 @@ of CentOS 7, where third party repository is required to install and use Kafe.
 
 ### Building from source
 
-To build Kafe from the source, you will need C++ and C compiler, CMake (version 3.11.4 or newer), Make and following 
+To build Kafe from the source, you will need C++ and C compiler, CMake (version 3.11.4 or newer), Make and following
 development libraries:
 
-- liblua version 5.3 or newer (up to version 5.4) 
+- liblua version 5.3 or newer (up to version 5.4)
 - libcurl (reserved for future APIs)
-- libarchive 
-- libssh 
+- libarchive
+- libssh
 - libgit2 (reserved for future APIs)
 
 Kafe is built and tested using Clang toolchain - version 7 or higher, depending on build environment,
@@ -304,7 +304,7 @@ To install dependencies using Homebrew, use this command:
 
 `brew install llvm lua libssh libgit2 curl libarchive`
 
-To build 
+To build
 1. Clone the source from `git@github.com:libkafe/kafe.git`;
 2. Optionally, check out the desired version tag to build from GIT;
 3. Execute [build-dist-macos.sh](./build-dist-macos.sh) file found at the root of the cloned sources.
@@ -345,10 +345,10 @@ outside the realm of my own personal use.
 [Hemp](https://github.com/Addvilz/hemp) was another tool I wrote prior to Kafe for use in production to automate deployment
 and remote automation. This tool was based on now unmaintained 3rd party remote automation library and was deprecated
 due to lack of support for Python 3 and breaking changes from upstream library vendor. Unfortunately, Hemp was and still
-is being used in a number of production projects and many production systems rely on it being functional and maintained, 
+is being used in a number of production projects and many production systems rely on it being functional and maintained,
 something that is no longer viable.
 
-I created Kafe to replace both of these tools. Kafe is designed to be as minimal and straightforward as possible. 
+I created Kafe to replace both of these tools. Kafe is designed to be as minimal and straightforward as possible.
 I wanted to create an automation tool with strong backwards compatibility guarantees, meaning that once written,
 automation tasks should work with minimal or no changes years to come.
 

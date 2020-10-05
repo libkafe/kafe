@@ -13,7 +13,7 @@ RUN yum -y update && \
         libssh-devel \
         libgit2-devel
 
-ENV CC /usr/bin/clang-10
-ENV CXX /usr/bin/clang++-10
+ENV CC /usr/bin/clang-11
+ENV CXX /usr/bin/clang++-11
 
 CMD /kafe/dist/fedora/33/build-dist.sh
