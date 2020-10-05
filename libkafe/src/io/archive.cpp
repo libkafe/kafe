@@ -30,6 +30,13 @@ using namespace std;
 using namespace kafe;
 using namespace kafe::runtime;
 
+/**
+ * MACOS has no EXTMATCH!
+ */
+#ifndef FNM_EXTMATCH
+#define FNM_EXTMATCH   0
+#endif
+
 namespace kafe::io {
     static const int ARCHIVE_FILE_BUFFER_S = 4096;
 
