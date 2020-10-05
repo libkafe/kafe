@@ -17,13 +17,11 @@ You should be able to use these binary packages for any derivative distributions
 For example, Elementary OS 5.1 users can use Ubuntu 18.04 packages, since Elementary OS 5.1 is based on Ubuntu 18.04.
 
 **macOS is officially supported** - Kafe can be installed compiling from source (see bellow) or using
-[homebrew vendor tap](https://github.com/libkafe/homebrew-kafe).
+[Homebrew vendor tap](https://github.com/libkafe/homebrew-kafe).
 
 <sup>1</sup> - EL7 does not ship with Lua 5.3. We currently use
 [Cheese](http://www.nosuchhost.net/~cheese/fedora/packages/epel-7/x86_64/cheese-release.html) repository
 to obtain Lua 5.3 on EL7.
-
-### Installation
 
 Installing a binary build is easy - download the binary packages from [releases](https://github.com/libkafe/kafe/releases)
 and install using your operating systems package manager. You will need to download both `kafe-cli` and `libkafe`
