@@ -236,11 +236,12 @@ new distributions must contain all current non-EOL distribution versions, includ
 
 #### Is Kafe available on Homebrew?
 
-No, but it is planned.
+Yes, you can install Kafe from [lbikafe tap](https://github.com/libkafe/homebrew-kafe).
 
 #### Does Kafe have official Docker images with binaries?
 
-No and it is unlikely there ever will be. At this time, Kafe is primarily a CLI tool - having a Docker image for it
+No and it is unlikely there ever will be. At this time, Kafe is primarily designed to be used as a CLI tool
+installed on a local system - having a Docker image for it
 has as much benefit as having a Docker image for `tail`. If you need to have Kafe in Docker for CI or some other use,
 creating your own image using any of the supported base operating system images should be trivial.
 
@@ -265,13 +266,13 @@ version 1 regardless of the internals of Kafe itself.
 | 1.x             | 1            | 5.3, 5.4 | Locked     |
 | 2.x             | 2<sup>1</sup>| 5.3, 5.4 | Planned    |
 
-<sup>1</sup> - it is very likely API level 2 will be fully backward compatible with level 1.
+<sup>1</sup> - it is very likely API level 2 will be fully backwards compatible with level 1.
 
 ### Lua compatibility
 
 Kafe currently supports Lua version 5.3 with 5.4 support in development. Lua versions
 older than 5.3 are not supported. Kafe will build against the latest available version of Lua in the
-build system. For most part, it is the latest version distributed by the operating system itself with the sole exception
+build system. For the most part, it is the latest version distributed by the operating system itself with the sole exception
 of CentOS 7, where third party repository is required to install and use Kafe.
 
 ### Building from source
