@@ -6,28 +6,20 @@ remote systems administration tasks.
 
 See [available package downloads and repositories](DOWNLOAD.md).
 
-Binary builds are available for:
+You can easily install and use libkafe on following operating systems:
 
 - **CentOS** and **RHEL** versions [7<sup>1</sup>](./DOWNLOAD.md#centos-and-rhel-7), [8](./DOWNLOAD.md#centos-and-rhel-8)
-- **Fedora** versions [31](./DOWNLOAD.md#fedora-31), [32](./DOWNLOAD.md#fedora-32), [33](./DOWNLOAD.md#fedora-33)
-- **Ubuntu** versions [18.04](./DOWNLOAD.md#ubuntu-1804), [19.10](./DOWNLOAD.md#ubuntu-1910), [20.04](./DOWNLOAD.md#ubuntu-2004), [20.10](./DOWNLOAD.md#ubuntu-2010)
+- **Fedora** versions [31](./DOWNLOAD.md#fedora-31), [32](./DOWNLOAD.md#fedora-32), [33](./DOWNLOAD.md#fedora-33), [34](./DOWNLOAD.md#fedora-34)
+- **Ubuntu** versions [18.04](./DOWNLOAD.md#ubuntu-1804), [19.10](./DOWNLOAD.md#ubuntu-1910), [20.04](./DOWNLOAD.md#ubuntu-2004), [20.10](./DOWNLOAD.md#ubuntu-2010), [21.04](./DOWNLOAD.md#ubuntu-2104)
 - **Debian** versions [9](./DOWNLOAD.md#debian-9), [10](./DOWNLOAD.md#debian-10), [11](./DOWNLOAD.md#debian-11)
-
-You should be able to use these binary packages for any derivative distributions.
-For example, Elementary OS 5.1 users can use Ubuntu 18.04 packages, since Elementary OS 5.1 is based on Ubuntu 18.04.
-
-**macOS is officially supported** - Kafe can be installed compiling from source (see bellow) or using
-[Homebrew vendor tap](https://github.com/libkafe/homebrew-kafe).
+- **macOS** versions 10.5 (Catalina), 11 (Big Sur) using [Homebrew vendor tap](https://github.com/libkafe/homebrew-kafe).
 
 <sup>1</sup> - EL7 does not ship with Lua 5.3. We currently use
 [Cheese](http://www.nosuchhost.net/~cheese/fedora/packages/epel-7/x86_64/cheese-release.html) repository
 to obtain Lua 5.3 on EL7.
 
-Installing a binary build is easy - download the binary packages from [releases](https://github.com/libkafe/kafe/releases)
-and install using your operating systems package manager. You will need to download both `kafe-cli` and `libkafe`
-artifacts. You do not need to install `libkafe-dev` unless you aim to embed libkafe.
-
-You can also build the sources locally using `CMake`. See bellow for instructions to build from source.
+You can also install libkafe building from sources locally using `CMake` - provided all dependencies are met,
+you should be able to build libkafe on nearly any Linux operating system. See bellow for instructions to build from source.
 
 ## Writing Kafe scripts
 
@@ -213,20 +205,13 @@ with C++ development headers made available for embedding (libkafe-dev).
 ## Operating system support
 
 Kafe should work with any UNIX-like operating system, provided all external dependencies are met.
-Binary packages are provided for:
-
-- **CentOS** and **RHEL** versions 7, 8
-- **Fedora** versions 31, 32, 33
-- **Ubuntu** versions 18.04, 19.10, 20.04
-- **Debian** versions 9, 10, 11
-- **macOS**  versions 10.15 Catalina
 
 Windows is not supported and there are no plans to support Windows builds. Windows users
 should be able to use Windows Subsystem for Linux to run or build Kafe. Take note that contributions
 and issues related to support for Windows will not be accepted.
 
-macOS is officially supported for versions 10.15 Catalina and newer. It is entirely possible Kafe works just
-fine on older versions of macOS, but no testing has been done on them. If you are unable to upgrade
+macOS is officially supported starting from version 10.15 Catalina. It is entirely possible Kafe works just
+fine on older versions of macOS, but no testing has been done. If you are unable to upgrade
 to latest macOS version, you should still try to install Kafe from sources. It will most likely work
 just fine provided all external dependencies are met.
 
@@ -317,7 +302,6 @@ feature complete and no new features will be added to this API level.
 Scripting API level 2 will incorporate more features to simplify application deployment and systems operations. Following
 is planned for level 2 expansion:
 
-- `.kafeignore` support for archive and directory operations.
 - Local and remote file system utility functions, expanded standard operations library.
 - Subset of Git features to streamline working with repositories (cloning, pulling, pushing, tagging, reading tags, releases...).
 - Simplistic CURL based HTTP client (basic requests, file uploads and downloads).

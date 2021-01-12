@@ -105,6 +105,17 @@ cp build/ubuntu/2010/kafe-cli*.deb build-artifact/ubuntu-2010/
 cp build/ubuntu/2010/libkafe*.deb build-artifact/ubuntu-2010/
 for f in build-artifact/ubuntu-2010/*; do mv -v "$f" $(echo "$f" | sed "s/\.deb/\.ubu2010\.deb/"); done
 
+# Ubuntu 21.04
+if [[ "$(docker images -q "kafe/ubuntu:2104-build" 2> /dev/null)" == "" ]]; then
+  docker build -t kafe/ubuntu:2104-build dist/ubuntu/2104
+fi
+
+docker run -it --rm -v `pwd`:/kafe kafe/ubuntu:2104-build
+mkdir -p build-artifact/ubuntu-2104/
+cp build/ubuntu/2104/kafe-cli*.deb build-artifact/ubuntu-2104/
+cp build/ubuntu/2104/libkafe*.deb build-artifact/ubuntu-2104/
+for f in build-artifact/ubuntu-2104/*; do mv -v "$f" $(echo "$f" | sed "s/\.deb/\.ubu2104\.deb/"); done
+
 # Fedora 31
 if [[ "$(docker images -q "kafe/fedora:31-build" 2> /dev/null)" == "" ]]; then
   docker build -t kafe/fedora:31-build dist/fedora/31
@@ -137,3 +148,14 @@ mkdir -p build-artifact/fedora-33/
 cp build/fedora/33/kafe-cli-*.rpm build-artifact/fedora-33/
 cp build/fedora/33/libkafe-*.rpm build-artifact/fedora-33/
 for f in build-artifact/fedora-33/*; do mv -v "$f" $(echo "$f" | sed "s/\.rpm/\.f33\.rpm/"); done
+
+# Fedora 34
+if [[ "$(docker images -q "kafe/fedora:34-build" 2> /dev/null)" == "" ]]; then
+  docker build -t kafe/fedora:34-build dist/fedora/34
+fi
+
+docker run -it --rm -v `pwd`:/kafe kafe/fedora:34-build
+mkdir -p build-artifact/fedora-34/
+cp build/fedora/34/kafe-cli-*.rpm build-artifact/fedora-34/
+cp build/fedora/34/libkafe-*.rpm build-artifact/fedora-34/
+for f in build-artifact/fedora-34/*; do mv -v "$f" $(echo "$f" | sed "s/\.rpm/\.f34\.rpm/"); done

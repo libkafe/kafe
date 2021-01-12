@@ -11,20 +11,19 @@ Binary package repositories for Kafe are generously hosted by [Cloudsmith](https
 - [Ubuntu 19.10](#ubuntu-1910)
 - [Ubuntu 20.04](#ubuntu-2004)
 - [Ubuntu 20.10](#ubuntu-2010)
+- [Ubuntu 21.04](#ubuntu-2104)
 - [CentOS and RHEL 7](#centos-and-rhel-7)
 - [CentOS and RHEL 8](#centos-and-rhel-8)
 - [Fedora 31](#fedora-31)
 - [Fedora 32](#fedora-32)
 - [Fedora 33](#fedora-33)
+- [Fedora 34](#fedora-34)
 - [macOS](https://github.com/libkafe/homebrew-kafe)
 
 See [releases](https://github.com/libkafe/kafe/releases) for all available downloads and historic versions,
 including development headers.
 
 See [Homebrew tap](https://github.com/libkafe/homebrew-kafe) for how to install Kafe on macOS.
-
-*NOTE:* macOS is supported, but there are no binary builds available. See [README](./README.md#building-on-macos)
-on how to build macOS binaries from source.
 
 *NOTE:* You should be able to use these binary packages for any derivative distributions too. For example,
 Elementary OS 5.1 users can use Ubuntu 18.04 packages, since Elementary OS 5.1 is based on Ubuntu 18.04.
@@ -135,6 +134,20 @@ apt update && apt -y install kafe-cli
 kafe about
 ```
 
+#### Ubuntu 21.04
+
+```shell script
+# Setup Kafe repository signing key
+apt-key adv --keyserver keyserver.ubuntu.com --recv AEE35447B5D3E4A69860622702F762CA6730E6A7
+# Setup repository
+echo 'deb https://dl.cloudsmith.io/public/kafe/libkafe/deb/ubuntu hirsute main' | \
+  tee /etc/apt/sources.list.d/kafe.list
+# Update APT package lists and install kafe-cli
+apt update && apt -y install kafe-cli
+# Print about
+kafe about
+```
+
 #### CentOS and RHEL 7
 
 **IMPORTANT:** Kafe requires Lua version 5.3, a dependency not available in EL7 by default. You can either
@@ -190,6 +203,17 @@ kafe about
 ```shell script
 # Setup repository
 curl -1sLf 'https://dl.cloudsmith.io/public/kafe/libkafe/cfg/setup/bash.rpm.sh' | distro=fedora codename=33 bash
+# Install kafe-cli
+dnf install -y kafe-cli
+# Print about
+kafe about
+```
+
+#### Fedora 34
+
+```shell script
+# Setup repository
+curl -1sLf 'https://dl.cloudsmith.io/public/kafe/libkafe/cfg/setup/bash.rpm.sh' | distro=fedora codename=34 bash
 # Install kafe-cli
 dnf install -y kafe-cli
 # Print about

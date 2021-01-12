@@ -39,6 +39,10 @@ cloudsmith push deb kafe/libkafe/ubuntu/groovy build-artifact/ubuntu-2010/kafe-c
 cloudsmith push deb kafe/libkafe/ubuntu/groovy build-artifact/ubuntu-2010/libkafe_1.1.3_amd64.ubu2010.deb
 cloudsmith push deb kafe/libkafe/ubuntu/groovy build-artifact/ubuntu-2010/libkafe-dev_1.1.3_amd64.ubu2010.deb
 
+cloudsmith push deb kafe/libkafe/ubuntu/hirsute build-artifact/ubuntu-2104/kafe-cli_1.1.3_amd64.ubu2104.deb
+cloudsmith push deb kafe/libkafe/ubuntu/hirsute build-artifact/ubuntu-2104/libkafe_1.1.3_amd64.ubu2104.deb
+cloudsmith push deb kafe/libkafe/ubuntu/hirsute build-artifact/ubuntu-2104/libkafe-dev_1.1.3_amd64.ubu2104.deb
+
 # Fedora
 cloudsmith push rpm kafe/libkafe/fedora/31 build-artifact/fedora-31/kafe-cli-1.1.3-1.x86_64.f31.rpm
 cloudsmith push rpm kafe/libkafe/fedora/31 build-artifact/fedora-31/libkafe-1.1.3-1.x86_64.f31.rpm
@@ -51,3 +55,7 @@ cloudsmith push rpm kafe/libkafe/fedora/32 build-artifact/fedora-32/libkafe-deve
 cloudsmith push rpm kafe/libkafe/fedora/33 build-artifact/fedora-33/kafe-cli-1.1.3-1.x86_64.f33.rpm
 cloudsmith push rpm kafe/libkafe/fedora/33 build-artifact/fedora-33/libkafe-1.1.3-1.x86_64.f33.rpm
 cloudsmith push rpm kafe/libkafe/fedora/33 build-artifact/fedora-33/libkafe-devel-1.1.3-1.x86_64.f33.rpm
+
+cloudsmith push rpm kafe/libkafe/fedora/34 build-artifact/fedora-34/kafe-cli-1.1.3-1.x86_64.f34.rpm
+cloudsmith push rpm kafe/libkafe/fedora/34 build-artifact/fedora-34/libkafe-1.1.3-1.x86_64.f34.rpm
+cloudsmith push rpm kafe/libkafe/fedora/34 build-artifact/fedora-34/libkafe-devel-1.1.3-1.x86_64.f34.rpm
