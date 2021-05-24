@@ -513,7 +513,7 @@ namespace kafe::scripting {
         const auto *scope = get_scope(L);
 
         if (scope->get_context()->is_local_context()) {
-            return lua_api_local_shell(L);
+            return lua_api_local_within(L);
         }
 
         if (!scope->has_current_api()) {

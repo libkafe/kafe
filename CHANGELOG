@@ -1,3 +1,6 @@
+* Mon May 24 2021 Matiss Treinis <mrtreinis@gmail.com> - 1.1.5
+- Bugfix - within aliased to shell in local context.
+
 * Mon May 24 2021 Matiss Treinis <mrtreinis@gmail.com> - 1.1.4
 - Add "local" command for local execution context runner
 - Introduce strict mode
