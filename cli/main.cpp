@@ -35,6 +35,18 @@ using namespace kafe;
 extern char** environ;
 #endif
 
+void loadEnvMap(map<const string, const string> &envVals) {
+    for (char **current = environ; *current; ++current) {
+        const string envVal = string(*current);
+        const ulong pos = envVal.find_first_of('=');
+        pair<string, string> p = pair<string, string>(
+            envVal.substr(0, pos),
+            envVal.substr(pos + 1)
+        );
+        envVals.insert(p);
+    }
+}
+
 void print_usage() {
     fflush(stderr);
     fflush(stdout);
@@ -44,6 +56,7 @@ void print_usage() {
 
     cout << "Usage: kafe <command> [arguments, ...]" << endl;
     cout << "       kafe do <environment> <task,task,task,...>" << endl;
+    cout << "       kafe local <task,task,task,...>" << endl;
     cout << "       kafe <help|--help>" << endl;
     cout << "       kafe <version|--version> [--lib]" << endl;
     cout << "       kafe <about|--about>" << endl;
@@ -51,6 +64,7 @@ void print_usage() {
     cout << "\n";
 
     cout << " kafe do: execute tasks from project file with given environment." << endl;
+    cout << " kafe local: execute tasks from project file on localhost." << endl;
     cout << " kafe help: display this help." << endl;
     cout << " kafe version: display KAFE program version and exit. Optionally,"
             " show libkafe version used if argument --lib is set." << endl;
@@ -118,24 +132,16 @@ int main(int argc, char *argv[]) {
 
     if (0 == strcmp("do", argv[1])) {
         if (4 > argc) {
-            cerr << "Command expects exactly at least two arguments - environment name and "
-                    "a comma separated task list with any number of arbitrary arguments "
+            cerr << "Command expects at least two arguments - environment name and "
+                    "a comma separated task list, and optionally - zero or more of arguments "
                     "to forward to the tasks being invoked.\n"
                     "Example: kafe do staging task1,task2,task3 <arg, arg, arg>";
             print_usage();
             return 1;
         }
 
-        map<const string, const string> envvals;
-        for (char **current = environ; *current; ++current) {
-            const string envl = string(*current);
-            const int pos = envl.find_first_of('=');
-            pair<string, string> p = pair<string, string>(
-                    envl.substr(0, pos),
-                    envl.substr(pos + 1)
-            );
-            envvals.insert(p);
-        }
+        map<const string, const string> envVals;
+        loadEnvMap(envVals);
 
         string environment = argv[2];
         string task_list_s = argv[3];
@@ -149,7 +155,41 @@ int main(int argc, char *argv[]) {
         try {
             auto project = Project("kafe.lua");
             auto logger = Logger();
-            auto context = Context(envvals, environment, task_list_v, &logger);
+            auto context = Context(envVals, environment, task_list_v, &logger);
+            auto inventory = Inventory();
+            project.execute(context, inventory, extra_args);
+        } catch (RuntimeException &e) {
+            cerr << e.what() << endl;
+            return 1;
+        }
+        return 0;
+    }
+
+    if (0 == strcmp("local", argv[1])) {
+        if (3 > argc) {
+            cerr << "Command expects at least one argument - "
+                    "a comma separated task list, and optionally - zero or more arguments "
+                    "to forward to the tasks being invoked.\n"
+                    "Example: kafe run task1,task2,task3 <arg, arg, arg>";
+            print_usage();
+            return 1;
+        }
+
+        map<const string, const string> envVals;
+        loadEnvMap(envVals);
+
+        string task_list_s = argv[2];
+        vector<string> task_list_v = split_csv_arguments(task_list_s, ',');
+
+        vector<string> extra_args;
+        for (int ii = 4; ii < argc; ++ii) {
+            extra_args.emplace_back(argv[ii]);
+        }
+
+        try {
+            auto project = Project("kafe.lua");
+            auto logger = Logger();
+            auto context = Context(envVals, "", task_list_v, &logger);
             auto inventory = Inventory();
             project.execute(context, inventory, extra_args);
         } catch (RuntimeException &e) {

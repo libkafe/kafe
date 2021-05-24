@@ -46,4 +46,8 @@ namespace kafe {
     const map<const string, const string> *Context::get_envvals() const {
         return &envvals;
     }
+
+    bool Context::is_local_context() const {
+        return this->environment.empty();
+    }
 }

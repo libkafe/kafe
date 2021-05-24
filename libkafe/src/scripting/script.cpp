@@ -160,6 +160,126 @@ namespace kafe::scripting {
         return 0;
     }
 
+    int lua_api_strict_mode(lua_State *L) {
+        bool strict_mode_state;
+
+        if (0 == lua_gettop(L)) {
+            strict_mode_state = true;
+        } else if (1 != lua_gettop(L) || !lua_isboolean(L, 1)) {
+            return luaL_error(L, "Expected zero or one argument - boolean to enable/disable strict mode");
+        } else {
+            strict_mode_state = lua_toboolean(L, 1);
+        }
+
+        get_scope(L)->set_strict(strict_mode_state);
+
+        return 0;
+    }
+
+
+    int lua_api_local_within(lua_State *L) {
+      const auto *scope = get_scope(L);
+
+      if (1 != lua_gettop(L) || !lua_isstring(L, 1)) {
+          luaL_error(L, "Expected one argument - string");
+      }
+
+      auto directory = scope->replace_vars(luaL_checkstring(L, 1));
+      auto directory_norm = FileSystem::normalize(directory, scope->get_local_api()->get_chdir());
+
+      scope->get_context()->get_log_listener()->emit_info(
+          "Changing local working directory to <%s>",
+          directory_norm.c_str()
+      );
+
+      if (!FileSystem::is_directory(directory_norm)) {
+          return luaL_error(L, "Not a directory <%s>", directory_norm.c_str());
+      }
+
+      scope->get_local_api()->chdir(directory_norm);
+
+      return 0;
+    }
+
+    int lua_api_local_exec(lua_State *L) {
+      const auto *scope = get_scope(L);
+
+      if (scope->has_current_api()) {
+          auto debug = get_lua_debug(L);
+          scope->get_context()->get_log_listener()->emit_warning(
+              "Executing local command with active remote scope in %s:%d. "
+              "Command will be executed for each server in context!",
+              debug.short_src,
+              debug.currentline
+          );
+      }
+
+      int n_args = lua_gettop(L);
+
+      if (1 != n_args && 2 != n_args) {
+          return luaL_error(L, "Expected one or two arguments");
+      }
+
+      if (!lua_isstring(L, 1)) {
+          return luaL_error(L, "Argument one is expected to be string");
+      }
+
+      bool print_output = true;
+      if (n_args == 2) {
+          if (!lua_isboolean(L, 2)) {
+              return luaL_error(L, "Argument two is expected to be boolean");
+          }
+          print_output = static_cast<bool>(lua_toboolean(L, 2));
+      }
+
+      auto command = scope->replace_vars(luaL_checkstring(L, 1));
+      auto result = scope->get_local_api()->local_popen(command, print_output);
+
+      if (scope->is_strict() && result.get_code() != 0) {
+          throw ScriptStrictExecutionException();
+      }
+
+      lua_pushstring(L, result.get_out().c_str());
+      lua_pushinteger(L, result.get_code());
+
+      return 2;
+    }
+
+    int lua_api_local_shell(lua_State *L) {
+      const auto *scope = get_scope(L);
+
+      if (scope->has_current_api()) {
+          auto debug = get_lua_debug(L);
+          scope->get_context()->get_log_listener()->emit_warning(
+              "Executing local command with active remote scope in %s:%d. "
+              "Command will be executed for each server in context!",
+              debug.short_src,
+              debug.currentline
+          );
+      }
+
+      int n_args = lua_gettop(L);
+
+      if (1 != n_args) {
+          return luaL_error(L, "Expected one argument");
+      }
+
+      if (!lua_isstring(L, 1)) {
+          return luaL_error(L, "Argument one is expected to be string");
+      }
+
+      auto command = scope->replace_vars(luaL_checkstring(L, 1));
+      auto result = scope->get_local_api()->local_popen(command, true);
+
+      if (scope->is_strict() && result.get_code() != 0) {
+          throw ScriptStrictExecutionException();
+      }
+
+      lua_pushboolean(L, 0 == result.get_code());
+
+      return 1;
+    }
+
     // TODO: allow kDSN format - <env+role://user@host:port>
     int lua_api_inventory_add(lua_State *L) {
         const auto *scope = get_scope(L);
@@ -263,7 +383,7 @@ namespace kafe::scripting {
 
         tasks->add_task(*task);
 
-        scope->get_context()->get_log_listener()->emit_info(
+        scope->get_context()->get_log_listener()->emit_debug(
                 "Defined task <%s>",
                 task_name
         );
@@ -333,9 +453,18 @@ namespace kafe::scripting {
             auto ssh_api = SshApi(&ssh_manager, logger);
 
             scope->set_current_remote(&ssh_api);
+            scope->set_strict(false);
 
-            lua_rawgeti(L, LUA_REGISTRYINDEX, function_reference);
-            int status = lua_pcall(L, 0, 0, 0);
+            int status;
+            try {
+                lua_rawgeti(L, LUA_REGISTRYINDEX, function_reference);
+                status = lua_pcall(L, 0, 0, 0);
+            } catch (ScriptStrictExecutionException &e) {
+                failed = true;
+                scope->clear_current_api();
+                logger->context_pop();
+                break;
+            }
 
             scope->clear_current_api();
 
@@ -347,6 +476,7 @@ namespace kafe::scripting {
                 logger->context_pop();
                 break;
             }
+
             logger->context_pop();
         }
 
@@ -357,8 +487,34 @@ namespace kafe::scripting {
         return 1;
     }
 
+    int lua_api_invoke_func(lua_State *L) {
+        get_scope(L)->set_strict(false);
+
+        if (1 != lua_gettop(L) || !lua_isfunction(L, 1)) {
+            return luaL_error(L,"Expected one argument - function reference");
+        }
+
+        auto function_reference = luaL_ref(L, LUA_REGISTRYINDEX);
+
+        int status = -1;
+        try {
+            lua_rawgeti(L, LUA_REGISTRYINDEX, function_reference);
+            status = lua_pcall(L, 0, 0, 0);
+        } catch (ScriptStrictExecutionException &e) {
+            // pass
+        }
+
+        lua_pushboolean(L, status == 0);
+
+        return 1;
+    }
+
     int lua_api_remote_within(lua_State *L) {
         const auto *scope = get_scope(L);
+
+        if (scope->get_context()->is_local_context()) {
+            return lua_api_local_shell(L);
+        }
 
         if (!scope->has_current_api()) {
             return luaL_error(L, "Can not change remote directory when not in remote scope");
@@ -383,6 +539,10 @@ namespace kafe::scripting {
 
     int lua_api_remote_exec(lua_State *L) {
         const auto *scope = get_scope(L);
+
+        if (scope->get_context()->is_local_context()) {
+            return lua_api_local_exec(L);
+        }
 
         if (!scope->has_current_api()) {
             return luaL_error(L, "Can not execute remote command when not in remote scope");
@@ -411,6 +571,10 @@ namespace kafe::scripting {
 
         auto result = api->execute(command, print_output);
 
+        if (scope->is_strict() && result.get_code() != 0) {
+            throw ScriptStrictExecutionException();
+        }
+
         lua_pushstring(L, result.get_stdout().c_str());
         lua_pushstring(L, result.get_stderr().c_str());
         lua_pushinteger(L, result.get_code());
@@ -420,6 +584,10 @@ namespace kafe::scripting {
 
     int lua_api_remote_shell(lua_State *L) {
         const auto *scope = get_scope(L);
+
+        if (scope->get_context()->is_local_context()) {
+            return lua_api_local_shell(L);
+        }
 
         if (!scope->has_current_api()) {
             return luaL_error(L, "Can not execute remote command when not in remote scope");
@@ -439,6 +607,10 @@ namespace kafe::scripting {
         const auto *api = scope->get_current_api();
 
         auto result = api->execute(command, true);
+
+        if (scope->is_strict() && result.get_code() != 0) {
+            throw ScriptStrictExecutionException();
+        }
 
         lua_pushboolean(L, 0 == result.get_code());
 
@@ -569,6 +741,11 @@ namespace kafe::scripting {
                     "Upload failed - %s",
                     e.what()
             );
+
+            if (scope->is_strict()) {
+                throw ScriptStrictExecutionException();
+            }
+
             lua_pushboolean(L, false);
         }
 
@@ -624,6 +801,9 @@ namespace kafe::scripting {
                     "Download failed - %s",
                     e.what()
             );
+            if (scope->is_strict()) {
+                throw ScriptStrictExecutionException();
+            }
             lua_pushboolean(L, false);
         }
 
@@ -676,6 +856,9 @@ namespace kafe::scripting {
                     "Upload failed - %s",
                     e.what()
             );
+            if (scope->is_strict()) {
+                throw ScriptStrictExecutionException();
+            }
             lua_pushboolean(L, false);
         }
 
@@ -720,6 +903,9 @@ namespace kafe::scripting {
                     "Download failed - %s",
                     e.what()
             );
+            if (scope->is_strict()) {
+                throw ScriptStrictExecutionException();
+            }
             lua_pushboolean(L, false);
         }
 
@@ -797,106 +983,13 @@ namespace kafe::scripting {
         return 1;
     }
 
-    int lua_api_local_within(lua_State *L) {
-        const auto *scope = get_scope(L);
-
-        if (1 != lua_gettop(L) || !lua_isstring(L, 1)) {
-            luaL_error(L, "Expected one argument - string");
-        }
-
-        auto directory = scope->replace_vars(luaL_checkstring(L, 1));
-        auto directory_norm = FileSystem::normalize(directory, scope->get_local_api()->get_chdir());
-
-        scope->get_context()->get_log_listener()->emit_info(
-                "Changing local working directory to <%s>",
-                directory_norm.c_str()
-        );
-
-        if (!FileSystem::is_directory(directory_norm)) {
-            return luaL_error(L, "Not a directory <%s>", directory_norm.c_str());
-        }
-
-        scope->get_local_api()->chdir(directory_norm);
-
-        return 0;
-    }
-
-    int lua_api_local_exec(lua_State *L) {
-        const auto *scope = get_scope(L);
-
-        if (scope->has_current_api()) {
-            auto debug = get_lua_debug(L);
-            scope->get_context()->get_log_listener()->emit_warning(
-                    "Executing local command with active remote scope in %s:%d. "
-                    "Command will be executed for each server in context!",
-                    debug.short_src,
-                    debug.currentline
-            );
-        }
-
-        int n_args = lua_gettop(L);
-
-        if (1 != n_args && 2 != n_args) {
-            return luaL_error(L, "Expected one or two arguments");
-        }
-
-        if (!lua_isstring(L, 1)) {
-            return luaL_error(L, "Argument one is expected to be string");
-        }
-
-        bool print_output = true;
-        if (n_args == 2) {
-            if (!lua_isboolean(L, 2)) {
-                return luaL_error(L, "Argument two is expected to be boolean");
-            }
-            print_output = static_cast<bool>(lua_toboolean(L, 2));
-        }
-
-        auto command = scope->replace_vars(luaL_checkstring(L, 1));
-        auto result = scope->get_local_api()->local_popen(command, print_output);
-
-        lua_pushstring(L, result.get_out().c_str());
-        lua_pushinteger(L, result.get_code());
-
-        return 2;
-    }
-
-    int lua_api_local_shell(lua_State *L) {
-        const auto *scope = get_scope(L);
-
-        if (scope->has_current_api()) {
-            auto debug = get_lua_debug(L);
-            scope->get_context()->get_log_listener()->emit_warning(
-                    "Executing local command with active remote scope in %s:%d. "
-                    "Command will be executed for each server in context!",
-                    debug.short_src,
-                    debug.currentline
-            );
-        }
-
-        int n_args = lua_gettop(L);
-
-        if (1 != n_args) {
-            return luaL_error(L, "Expected one argument");
-        }
-
-        if (!lua_isstring(L, 1)) {
-            return luaL_error(L, "Argument one is expected to be string");
-        }
-
-        auto command = scope->replace_vars(luaL_checkstring(L, 1));
-        auto result = scope->get_local_api()->local_popen(command, true);
-
-        lua_pushboolean(L, 0 == result.get_code());
-
-        return 1;
-    }
-
     extern "C" const struct luaL_Reg module_def[] = {
             {"require_api",     lua_api_level_require},
+            {"strict",          lua_api_strict_mode},
             {"task",            lua_api_task_define},
             {"add_inventory",   lua_api_inventory_add},
             {"on",              lua_api_on_role_invoke},
+            {"invoke",          lua_api_invoke_func},
             {"within",          lua_api_remote_within},
             {"exec",            lua_api_remote_exec},
             {"shell",           lua_api_remote_shell},
@@ -909,7 +1002,7 @@ namespace kafe::scripting {
             {"define",          lua_api_define},
             {"strfvars",        lua_api_strfvars},
             {"strfenv",         lua_api_strfenv},
-            {"getenv",         lua_api_getenv},
+            {"getenv",          lua_api_getenv},
             {"local_exec",      lua_api_local_exec},
             {"local_shell",     lua_api_local_shell},
             {"local_within",    lua_api_local_within},

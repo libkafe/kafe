@@ -50,33 +50,50 @@ namespace kafe {
 
         logger->emit_debug("Resolved project file is <%s>", main_file.c_str());
 
-        timer = logger->emit_info_wt("Loading project file <%s>", project_file.c_str());
+        timer = logger->emit_debug_wt("Loading project file <%s>", project_file.c_str());
         script.load_file(main_file);
-        logger->emit_success(&timer, "Loaded project file <%s>", project_file.c_str());
 
-        timer = logger->emit_info_wt("Evaluating project file <%s>", project_file.c_str());
+        if (logger->get_level() <= LogLevel::DEBUG) {
+            logger->emit_success(&timer, "Loaded project file <%s>", project_file.c_str());
+        }
+
+        timer = logger->emit_debug_wt("Evaluating project file <%s>", project_file.c_str());
         script.evaluate();
-        logger->emit_success(&timer, "Done evaluating project file <%s>", project_file.c_str());
 
-        logger->emit_info("Verifying all tasks requested are defined");
+        if (logger->get_level() <= LogLevel::DEBUG) {
+            logger->emit_success(&timer, "Done evaluating project file <%s>", project_file.c_str());
+        }
+
+        logger->emit_debug("Verifying all tasks requested are defined");
         for (const auto &task_name : scope.get_context()->get_tasks()) {
             if (!scope.get_tasks()->task_exists(task_name)) {
                 throw UnknownTaskException("Task <%s> is not defined in project", task_name.c_str());
             }
         }
-        logger->emit_success("Tasks verified");
+
+        if (logger->get_level() <= LogLevel::DEBUG) {
+            logger->emit_success("Tasks verified");
+        }
 
         for (const auto &task_name : scope.get_context()->get_tasks()) {
+            scope.set_strict(false); // Reset before every run of a task.
+
             timer = logger->emit_info_wt("Executing task <%s>", task_name.c_str());
             logger->context_push(task_name);
 
             const Task *task = scope.get_tasks()->get_task(task_name);
             int ref = task->get_function_reference();
 
-            script.invoke_function_by_ref(ref, extra_args);
+            try {
+                script.invoke_function_by_ref(ref, extra_args);
+                logger->emit_success(&timer, "Task <%s> completed", task_name.c_str());
+            } catch (ScriptStrictExecutionException &e) {
+                //pass
+                logger->emit_error(&timer, "Task <%s> failed in strict mode", task_name.c_str());
+                break;
+            }
 
             logger->context_pop();
-            logger->emit_success(&timer, "Task <%s> completed", task_name.c_str());
         }
     }
 }

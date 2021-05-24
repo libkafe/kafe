@@ -2,13 +2,13 @@
 set -e
 
 # Clean existing build workspace
-rm -rf /kafe/build/centos/8 2> /dev/null
+rm -rf /kafe/build/fedora/35 2> /dev/null
 
 # Create build workspace
-mkdir -p /kafe/build/centos/8/
+mkdir -p /kafe/build/fedora/35/
 
 # Warp to build workspace
-cd /kafe/build/centos/8/
+cd /kafe/build/fedora/35/
 
 # Prepare build
 cmake -DCMAKE_BUILD_TYPE=Release -DCPACK_GENERATOR=RPM ../../../

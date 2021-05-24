@@ -1,8 +1,8 @@
-FROM centos:8
+FROM almalinux:8
 
 RUN yum -y update && \
     yum -y install dnf-plugins-core && \
-    yum config-manager --set-enabled PowerTools && \
+    yum config-manager --set-enabled powertools && \
     yum -y install \
         make \
         rpm-build \
@@ -15,7 +15,7 @@ RUN yum -y update && \
         libssh-devel \
         libgit2-devel
 
-ENV CC /usr/bin/clang-9
-ENV CXX /usr/bin/clang++-9
+ENV CC /usr/bin/clang-10
+ENV CXX /usr/bin/clang++-10
 
-CMD /kafe/dist/centos/8/build-dist.sh
+CMD /kafe/dist/almalinux/8/build-dist.sh

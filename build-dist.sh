@@ -6,7 +6,7 @@ set -xe
 rm -rf build/
 rm -rf build-artifact/
 
-# CentOS 7
+# EL7
 if [[ "$(docker images -q "kafe/centos:7-build" 2> /dev/null)" == "" ]]; then
   docker build -t kafe/centos:7-build dist/centos/7
 fi
@@ -17,16 +17,16 @@ cp build/centos/7/kafe-cli-*.rpm build-artifact/centos-7/
 cp build/centos/7/libkafe-*.rpm build-artifact/centos-7/
 for f in build-artifact/centos-7/*; do mv -v "$f" $(echo "$f" | sed "s/\.rpm/\.el7\.rpm/"); done
 
-# CentOS 8
-if [[ "$(docker images -q "kafe/centos:8-build" 2> /dev/null)" == "" ]]; then
-  docker build -t kafe/centos:8-build dist/centos/8
+# EL 8
+if [[ "$(docker images -q "kafe/almalinux:8-build" 2> /dev/null)" == "" ]]; then
+  docker build -t kafe/almalinux:8-build dist/almalinux/8
 fi
 
-docker run -it --rm -v `pwd`:/kafe kafe/centos:8-build
-mkdir -p build-artifact/centos-8/
-cp build/centos/8/kafe-cli-*.rpm build-artifact/centos-8/
-cp build/centos/8/libkafe-*.rpm build-artifact/centos-8/
-for f in build-artifact/centos-8/*; do mv -v "$f" $(echo "$f" | sed "s/\.rpm/\.el8\.rpm/"); done
+docker run -it --rm -v `pwd`:/kafe kafe/almalinux:8-build
+mkdir -p build-artifact/almalinux-8/
+cp build/almalinux/8/kafe-cli-*.rpm build-artifact/almalinux-8/
+cp build/almalinux/8/libkafe-*.rpm build-artifact/almalinux-8/
+for f in build-artifact/almalinux-8/*; do mv -v "$f" $(echo "$f" | sed "s/\.rpm/\.el8\.rpm/"); done
 
 # Debian 9
 if [[ "$(docker images -q "kafe/debian:9-build" 2> /dev/null)" == "" ]]; then
@@ -71,17 +71,6 @@ mkdir -p build-artifact/ubuntu-1804/
 cp build/ubuntu/1804/kafe-cli*.deb build-artifact/ubuntu-1804/
 cp build/ubuntu/1804/libkafe*.deb build-artifact/ubuntu-1804/
 for f in build-artifact/ubuntu-1804/*; do mv -v "$f" $(echo "$f" | sed "s/\.deb/\.ubu1804\.deb/"); done
-
-# Ubuntu 19.10
-if [[ "$(docker images -q "kafe/ubuntu:1910-build" 2> /dev/null)" == "" ]]; then
-  docker build -t kafe/ubuntu:1910-build dist/ubuntu/1910
-fi
-
-docker run -it --rm -v `pwd`:/kafe kafe/ubuntu:1910-build
-mkdir -p build-artifact/ubuntu-1910/
-cp build/ubuntu/1910/kafe-cli*.deb build-artifact/ubuntu-1910/
-cp build/ubuntu/1910/libkafe*.deb build-artifact/ubuntu-1910/
-for f in build-artifact/ubuntu-1910/*; do mv -v "$f" $(echo "$f" | sed "s/\.deb/\.ubu1910\.deb/"); done
 
 # Ubuntu 20.04
 if [[ "$(docker images -q "kafe/ubuntu:2004-build" 2> /dev/null)" == "" ]]; then
@@ -159,3 +148,14 @@ mkdir -p build-artifact/fedora-34/
 cp build/fedora/34/kafe-cli-*.rpm build-artifact/fedora-34/
 cp build/fedora/34/libkafe-*.rpm build-artifact/fedora-34/
 for f in build-artifact/fedora-34/*; do mv -v "$f" $(echo "$f" | sed "s/\.rpm/\.f34\.rpm/"); done
+
+# Fedora 35
+if [[ "$(docker images -q "kafe/fedora:35-build" 2> /dev/null)" == "" ]]; then
+  docker build -t kafe/fedora:35-build dist/fedora/35
+fi
+
+docker run -it --rm -v `pwd`:/kafe kafe/fedora:35-build
+mkdir -p build-artifact/fedora-35/
+cp build/fedora/35/kafe-cli-*.rpm build-artifact/fedora-35/
+cp build/fedora/35/libkafe-*.rpm build-artifact/fedora-35/
+for f in build-artifact/fedora-35/*; do mv -v "$f" $(echo "$f" | sed "s/\.rpm/\.f35\.rpm/"); done

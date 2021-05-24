@@ -1,4 +1,4 @@
-FROM fedora:34
+FROM fedora:35
 
 RUN yum -y update && \
     yum -y install \
@@ -16,4 +16,4 @@ RUN yum -y update && \
 ENV CC /usr/bin/clang-12
 ENV CXX /usr/bin/clang++-12
 
-CMD /kafe/dist/fedora/34/build-dist.sh
+CMD /kafe/dist/fedora/35/build-dist.sh

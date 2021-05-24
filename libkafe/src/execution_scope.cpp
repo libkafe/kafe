@@ -179,4 +179,12 @@ namespace kafe {
     const string &ExecutionScope::get_project_file() const {
         return project_file;
     }
+
+    void ExecutionScope::set_strict(bool state) {
+        this->is_strict_exec_mode = state;
+    }
+
+    bool ExecutionScope::is_strict() const {
+        return is_strict_exec_mode;
+    }
 }

@@ -46,6 +46,7 @@ namespace kafe {
         LocalApi *local;
         const vector<string> &extra_args;
         const string& project_file;
+        bool is_strict_exec_mode = false;
     public:
         explicit ExecutionScope(
                 const Context &context,
@@ -89,6 +90,10 @@ namespace kafe {
         const string &get_project_file() const;
 
         const string get_env(const string &key) const;
+
+        void set_strict(bool b);
+
+        bool is_strict() const;
     };
 }
 

@@ -209,6 +209,8 @@ Effectively prepends `cd <dir> &&` to all subsequent shell commands in the same 
 subsequent remote shell commands in directory that does not exist will result in their
 hard failure.
 
+**NOTE:** when running in local mode (`kafe local`) this command is an alias of `k.local_within`.
+
 ##### An example of usage
 
 ```lua
@@ -231,6 +233,8 @@ Execute a remote shell command and return it's outputs along with exit code.
 Second optional argument indicates if the remote output should also be
 logged in output of the tool. This option is enabled by default.
 
+**NOTE:** when running in local mode (`kafe local`) this command is an alias of `k.local_exec`.
+
 ##### An example of usage
 
 ```lua
@@ -252,6 +256,8 @@ end)
 
 Execute a remote shell command, log output and return exit status as boolean. Will
 return true if exit status of the remote command is `0`, false otherwise.
+
+**NOTE:** when running in local mode (`kafe local`) this command is an alias of `k.local_shell`.
 
 ##### An example of usage
 
@@ -552,6 +558,64 @@ local k = require('kafe')
 k.task('example_task', function()
     k.local_within('/tmp')
     k.local_shell('ls') -- will print contents of local /tmp in stdout
+end)
+```
+
+## void k.strict([bool state = true])
+#### New in version 1.1.4
+
+Set strict execution mode within current execution runtime context (function).
+
+##### What is strict mode?
+
+Strict mode enables early failure when executing commands. Whenever a function is run
+with strict mode enable inside that function, any remote or local calls that does not
+complete with successful exit code (0) will be considered failed and will immediately
+interrupt execution of the current task or subtask.
+
+Strict mode is disabled by default to allow for graceful error handling, however, it might
+be useful to enable strict mode in some cases, for example, when recovery is impossible,
+not feasible or simply not required.
+
+Strict mode is automatically reset to disabled when:
+
+- a task is executed
+- `invoke` is used
+- `on` is used for every host in the matching inventory
+
+##### An example of usage
+
+```lua
+local k = require('kafe')
+
+local subtask = function()
+    k.strict() -- Enabling strict mode in subtask context
+    k.shell('command_that_fails') -- Invoking a failing shell command
+    k.shell('will_not_run') -- This will NOT be executed if strict mode is enabled
+end
+
+k.task('example_task', function()
+    k.invoke(subtask)
+end)
+```
+
+## void k.invoke(function ref)
+#### New in version 1.1.4
+
+Invoke function within the same context as currently executing task or subtask.
+Handles strict mode execution failures in a safe way.
+
+##### An example of usage
+
+```lua
+local k = require('kafe')
+
+local subtask = function()
+    k.shell('echo "hello world"')
+end
+
+k.task('example_task', function()
+    k.invoke(subtask)
 end)
 ```
 

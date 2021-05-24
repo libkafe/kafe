@@ -166,7 +166,7 @@ namespace kafe {
     }
 
     void Logger::on_stdout_line(string line) const {
-        on_stdout_line("out", line);
+        on_stdout_line("stdout", line);
     }
 
     void Logger::on_stdout_line(string prefix, string line) const {
@@ -197,7 +197,7 @@ namespace kafe {
     }
 
     void Logger::on_stderr_line(string line) const {
-        on_stderr_line("err", line);
+        on_stderr_line("stderr", line);
     }
 
     void Logger::on_stderr_line(string prefix, string line) const {
@@ -212,7 +212,7 @@ namespace kafe {
         fprintf(
                 stderr,
                 "%s%s%s %s%s",
-                IO_TTY_ANSI_COLOR_RED,
+                IO_TTY_ANSI_COLOR_YELLOW,
                 expand_prefix(prefix).c_str(),
                 IO_TTY_ANSI_COLOR_RESET,
                 context_to_s(get_context()).c_str(),

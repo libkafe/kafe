@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.11.4)
 
 # IMPORTANT: updating version might require update in package dependencies at the end of this file.
-set(KAFE_VERSION "1.1.3")
+set(KAFE_VERSION "1.1.4")
 set(KAFE_SOVERSION "1.1")
 set(KAFE_VERSION_INT 11)
 set(KAFE_VERSION_DEP_NEXT_MAJOR "2.0.0")
@@ -73,7 +73,7 @@ set(CPACK_DEBIAN_CLI_PACKAGE_NAME "kafe-cli")
 set(CPACK_DEBIAN_LIBKAFE_PACKAGE_NAME "libkafe")
 set(CPACK_DEBIAN_LIBKAFE-DEV_PACKAGE_NAME "libkafe-dev")
 set(CPACK_DEBIAN_CLI_PACKAGE_DEPENDS "libkafe (>=${KAFE_VERSION}), libkafe (<<${KAFE_VERSION_DEP_NEXT_MAJOR}), libstdc++6, libc6, libgcc1, libc6")
-set(CPACK_DEBIAN_LIBKAFE_PACKAGE_DEPENDS "libstdc++6, libc6, libgcc1, libc6, liblua5.3-0, libssh-4 (>=0.7.0), libarchive13, libcurl3 | libcurl4, libgit2-24 | libgit2-26 | libgit2-27 | libgit2-28")
+set(CPACK_DEBIAN_LIBKAFE_PACKAGE_DEPENDS "libstdc++6, libc6, libgcc1, libc6, liblua5.3-0, libssh-4 (>=0.7.0), libarchive13, libcurl3 | libcurl4, libgit2-24 | libgit2-26 | libgit2-27 | libgit2-28 | libgit2-1.1")
 set(CPACK_DEBIAN_LIBKAFE-DEV_PACKAGE_DEPENDS "libkafe (=${KAFE_VERSION})")
 
 set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)

@@ -50,6 +50,8 @@ namespace kafe {
         [[nodiscard]] const vector<string> &get_tasks() const;
 
         [[nodiscard]] const ILogEventListener *get_log_listener() const;
+
+        [[nodiscard]] bool is_local_context() const;
     };
 }
 

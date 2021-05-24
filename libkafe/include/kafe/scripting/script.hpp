@@ -42,6 +42,9 @@ namespace kafe::scripting {
         using ScriptEngineException::ScriptEngineException;
     };
 
+    class ScriptStrictExecutionException : public exception {
+    };
+
     class Script {
         const ExecutionScope &scope;
         lua_State *lua_state;

@@ -8,11 +8,11 @@ See [available package downloads and repositories](DOWNLOAD.md).
 
 You can easily install and use libkafe on following operating systems:
 
-- **CentOS** and **RHEL** versions [7<sup>1</sup>](./DOWNLOAD.md#centos-and-rhel-7), [8](./DOWNLOAD.md#centos-and-rhel-8)
-- **Fedora** versions [31](./DOWNLOAD.md#fedora-31), [32](./DOWNLOAD.md#fedora-32), [33](./DOWNLOAD.md#fedora-33), [34](./DOWNLOAD.md#fedora-34)
-- **Ubuntu** versions [18.04](./DOWNLOAD.md#ubuntu-1804), [19.10](./DOWNLOAD.md#ubuntu-1910), [20.04](./DOWNLOAD.md#ubuntu-2004), [20.10](./DOWNLOAD.md#ubuntu-2010), [21.04](./DOWNLOAD.md#ubuntu-2104)
+- **RHEL/EL** versions [7<sup>1</sup>](./DOWNLOAD.md#el7), [8](./DOWNLOAD.md#el8)
+- **Fedora** versions [31](./DOWNLOAD.md#fedora-31), [32](./DOWNLOAD.md#fedora-32), [33](./DOWNLOAD.md#fedora-33), [34](./DOWNLOAD.md#fedora-34), [35](./DOWNLOAD.md#fedora-35)
+- **Ubuntu** versions [18.04](./DOWNLOAD.md#ubuntu-1804), [20.04](./DOWNLOAD.md#ubuntu-2004), [20.10](./DOWNLOAD.md#ubuntu-2010), [21.04](./DOWNLOAD.md#ubuntu-2104)
 - **Debian** versions [9](./DOWNLOAD.md#debian-9), [10](./DOWNLOAD.md#debian-10), [11](./DOWNLOAD.md#debian-11)
-- **macOS** versions 10.5 (Catalina), 11 (Big Sur) using [Homebrew vendor tap](https://github.com/libkafe/homebrew-kafe).
+- **macOS** versions 10.5 (Catalina), 11 (Big Sur) and newer, using [Homebrew vendor tap](https://github.com/libkafe/homebrew-kafe).
 
 <sup>1</sup> - EL7 does not ship with Lua 5.3. We currently use
 [Cheese](http://www.nosuchhost.net/~cheese/fedora/packages/epel-7/x86_64/cheese-release.html) repository
@@ -173,6 +173,14 @@ execute following Kafe CLI command:
 
 When executed, Kafe CLI will look for a file named `kafe.lua` in the current working direcory. This
 file will be interpreted and requested tasks from it will be executed against all relevant remote servers.
+
+### Local tasks and local execution environment
+
+From version 1.1.4, Kafe adds support for local scripting using `kafe local` command line interface.
+This is simply a shortcut that allows for writing local automation tasks, local scripts and similar directly in
+Kafe and allows Kafe to be used as build automation framework and local task runner.
+
+**NOTE:** in local, APIs like `exec`, `shell` are simply aliased to `local_shell` and `local_exec`.
 
 #### SSH and SSH authentication
 
