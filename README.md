@@ -1,6 +1,6 @@
 Kafe (`/ka'fe:/`) is an open source scriptable systems automation toolkit. It provides a basic set of features to interact
-with local and remote systems over SSH. Kafe is well suited for application deployment and similar
-remote systems administration tasks.
+with local systems as well as remote systems over SSH. Kafe is well suited for application deployment, remote
+automation and similar remote administration tasks.
 
 ## Installation
 
@@ -38,17 +38,17 @@ a perfect fit for scripting against Kafe APIs.
 #### Tasks
 
 All automation code in Kafe is divided in work units called tasks. A task is isolated unit of work that describes
-all actions needed to perform against local or remote systems.
+all actions needed to perform against local or remote system.
 
 Tasks are independent, and there are no facilities to chain or relate tasks - this is by design. To share code and
 operations between tasks, you can use standard Lua functions.
 
 #### Inventory
 
-Kafe categorizes all remote servers by environment and role. And environment is a logical unit of remote servers -
+Kafe categorizes all remote servers by environment and role. An environment is a logical unit of remote servers -
 testing environment, staging environment, production environment, and so forth. A role is a logical unit
-of one or more servers performing the same infrastructure role - a database server, a web server, an application host, to
-name a few. Each inventory item can have one or more roles and environment.
+of one or more servers performing the same infrastructure role - a database server, a web server, an application host,
+to name a few. Each inventory item can have one or more roles and environment.
 
 All remote servers in Kafe must be placed in inventory. Inventory is a list of remote servers with associated
 roles and environments. Each server can have one or more roles and can be present in one or more environments.
@@ -62,95 +62,43 @@ remote management tasks might seem a good idea at first, but it rarely is - para
 handling much more difficult, might leave remote systems in an inconsistent state and requires a
 much larger investment in writing the automation tasks.
 
-### Examples
+### Example
 
-Example bellow aims to demonstrate how to deploy a simple web software application to a remote host. Remember
-that although Kafe can be used to deploy software, it is designed to be purpose agnostic - you can use it for
-all kinds of remote automation tasks since you can run raw shell commands, make uploads and downloads, etc.
+Example bellow demonstrates a very basic usage of Kafe. Kafe is designed to be purpose agnostic - 
+you can use it for any kind of local and remote automation tasks, running shell commands, uploading files,
+etc.
 
 ```lua
 -- Include the API
 local k = require('kafe')
+
 -- Make sure our deployment script is run with compatible libkafe
 k.require_api(1)
 
 -- The username to use for SSH connection
 local username = os.getenv('USER');
 
--- Add a server to inventory
-k.add_inventory(username, 'server01.example.com', 22, 'production', 'app')
+-- Add a server to inventory [username, hostname, port, environment, role]
+k.add_inventory(username, 'example.com', 22, 'production', 'app')
 
--- Define a deployment task
-k.task('deploy', function()
-    -- Define a version of the application to use in deployment.
-    local version = os.time(os.date('!*t'))
+-- This is a remote task
+-- This task can be invoked like: `kafe do production whoami`
+-- Remote tasks must have subtasks
+k.task('whoami', function()
+    -- Commands here are executed on localhost
 
-    -- Define the path to deploy to. The current source will be symlinked to
-    -- remote path /var/www/app/current/
-    k.define('deploy_to', '/var/www/app')
-    k.define('version', version)
-
-    -- Create an archive for deployment from ./build directory
-    local archive = k.archive_dir_tmp('./build')
-
-    -- Deployment subtask
-    local deploy = function()
-        -- Create deployment root directory
-        -- {{deploy_to}} will be replaced with /var/www/app from k.define(...) call above
-        if not k.shell('mkdir -p {{deploy_to}}')
-            then error('Could not create deployment directory target') end
-
-        k.within('{{deploy_to}}')
-
-        -- Create release directory
-        if not k.shell('mkdir -p releases/{{version}}/')
-            then error('Could not create release root directory') end
-
-        -- Upload and unpack the archive
-        k.upload_file(archive, 'releases/{{version}}/upload.tar.gz')
-
-        if not k.shell('tar -xf releases/{{version}}/upload.tar.gz -C releases/{{version}}')
-            then error('Could not unpack uploaded archive') end
-
-        -- Cleanup the uploaded archive, we don't need it anymore
-        if not k.shell('rm releases/{{version}}/upload.tar.gz')
-            then error('Failed to remove uploaded archive') end
-
-        -- Ensure other users within the same usergroup can manage releases (optional)
-        if not k.shell('chmod g+rw releases && chmod g+rw -Rf releases/')
-            then error('Failed to fix chmod') end
-    end
-
-    -- Symlink current release subtask
-    local symlink = function()
-        k.within('{{deploy_to}}')
-
-        if not k.shell('ln -nsfv releases/{{version}}/ current')
-            then error('Failed to update the symlink to the new version') end
-    end
-
-    -- Remove all but last 3 releases subtask
-    local remove_old_releases = function()
-        k.within('{{deploy_to}}/releases/')
-
-        if not k.shell('ls -1tr | head -n -3 | xargs -d \'\\n\' rm -rf --') then
-            error('Failed to remove old releases') end
-    end
-
-    -- Execute all subtasks in order - deploy, symlink, remove_old_releases
-    -- symlink and remove_old_releases will not be run if deploy task fails
-    -- for any reason.
-    if k.on('app', deploy) then
-        k.on('app', symlink)
-        k.on('app', remove_old_releases)
-    end
+    -- Execute a subtask on inventory node with role 'app'
+    k.on('app', function()
+        -- Commands here are executed on a remote server
+        k.shell('whoami')
+    end)
 end)
-```
 
-Above example deployment task can be invoked from command line using a shell command like this -
-
-```shell script
-kafe do production deploy
+-- This is a local task. Local tasks do not need to have subtasks.
+-- This task can be invoked like: `kafe local date`
+k.task('date', function()
+    k.shell('date')
+end)
 ```
 
 #### More examples
@@ -159,7 +107,7 @@ You can find more examples on how to write Kafe scripts in the [examples](./exam
 
 ### Scripting API
 
-Scripting API documentation for API level 1 is available [here](docs/SCRIPTING_API_L1.md).
+Scripting API documentation is available [here](docs/SCRIPTING_API_L1.md).
 
 ### Using the CLI
 
@@ -257,7 +205,7 @@ version 1 regardless of the internals of Kafe itself.
 | libkafe version | API level    | Lua      | Status     |
 |-----------------|--------------|----------|------------|
 | 1.x             | 1            | 5.3, 5.4 | Locked     |
-| 2.x             | 2<sup>1</sup>| 5.3, 5.4 | Planned    |
+| 2.x             | 2<sup>1</sup>| 5.3, 5.4 | Future     |
 
 <sup>1</sup> - it is very likely API level 2 will be fully backwards compatible with level 1.
 
@@ -301,22 +249,6 @@ To build
 2. Optionally, check out the desired version tag to build from GIT;
 3. Execute [build-dist-macos.sh](./build-dist-macos.sh) file found at the root of the cloned sources.
 4. Optionally, enter `build/osx` directory, and issue `make install` command to install Kafe on your local machine.
-
-## Future expansions
-
-Scripting API level 1 ships with a basic set of commands required for remote deployment and maintenance. It is considered
-feature complete and no new features will be added to this API level.
-
-Scripting API level 2 will incorporate more features to simplify application deployment and systems operations. Following
-is planned for level 2 expansion:
-
-- Local and remote file system utility functions, expanded standard operations library.
-- Subset of Git features to streamline working with repositories (cloning, pulling, pushing, tagging, reading tags, releases...).
-- Simplistic CURL based HTTP client (basic requests, file uploads and downloads).
-- Test framework for Kafe scripts.
-
-A side-goal of API level 2 is to retain compatibility with API level 1, meaning, if at all possible, all scripts written
-for API level 1 will work just fine with API level 2 compatible libkafe.
 
 ## Reporting issues
 
