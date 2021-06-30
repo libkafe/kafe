@@ -1,3 +1,6 @@
+* Mon May 24 2021 Matiss Treinis <mrtreinis@gmail.com> - 1.1.5.1
+- Support for Apple SoC
+
 * Mon May 24 2021 Matiss Treinis <mrtreinis@gmail.com> - 1.1.5
 - Bugfix - within aliased to shell in local context.
 

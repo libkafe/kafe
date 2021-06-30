@@ -19,7 +19,7 @@ if (NOT UNIX AND NOT APPLE)
 endif ()
 
 if(APPLE)
-    set(CMAKE_PREFIX_PATH  "/usr/local/opt/libarchive/;/usr/local/opt/libssh/;/usr/local/opt/curl/;/usr/local/opt/libgit2/;/usr/local/opt/lua/")
+    set(CMAKE_PREFIX_PATH  "/usr/local/opt/libarchive/;/usr/local/opt/libssh/;/usr/local/opt/curl/;/usr/local/opt/libgit2/;/usr/local/opt/lua/;/opt/homebrew/opt/libarchive/;/opt/homebrew/opt/libssh/;/opt/homebrew/opt/curl/;/opt/homebrew/opt/libgit2/;/opt/homebrew/opt/lua/")
 endif()
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)

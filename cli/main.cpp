@@ -37,8 +37,8 @@ extern char** environ;
 
 void loadEnvMap(map<const string, const string> &envVals) {
     for (char **current = environ; *current; ++current) {
-        const string envVal = string(*current);
-        const ulong pos = envVal.find_first_of('=');
+        const auto envVal = string(*current);
+        const auto pos = envVal.find_first_of('=');
         pair<string, string> p = pair<string, string>(
             envVal.substr(0, pos),
             envVal.substr(pos + 1)
