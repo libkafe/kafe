@@ -24,6 +24,7 @@
 #include <kafe/version.hpp>
 #include <kafe/project.hpp>
 #include <kafe/context.hpp>
+#include <kafe/make.hpp>
 
 #include "main.hpp"
 #include "logger.hpp"
@@ -55,8 +56,9 @@ void print_usage() {
             LIBKAFE_API_LEVEL);
 
     cout << "Usage: kafe <command> [arguments, ...]" << endl;
-    cout << "       kafe do <environment> <task,task,task,...>" << endl;
-    cout << "       kafe local <task,task,task,...>" << endl;
+    cout << "       kafe do <environment> <task,task,task,...> [arg,arg,arg]" << endl;
+    cout << "       kafe local <task,task,task,...> [arg,arg,arg]" << endl;
+    cout << "       kafe make <stage,stage,stage,...> [key=val, [key=val]]" << endl;
     cout << "       kafe <help|--help>" << endl;
     cout << "       kafe <version|--version> [--lib]" << endl;
     cout << "       kafe <about|--about>" << endl;
@@ -65,6 +67,7 @@ void print_usage() {
 
     cout << " kafe do: execute tasks from project file with given environment." << endl;
     cout << " kafe local: execute tasks from project file on localhost." << endl;
+    cout << " kafe make: execute pipeline stages." << endl;
     cout << " kafe help: display this help." << endl;
     cout << " kafe version: display KAFE program version and exit. Optionally,"
             " show libkafe version used if argument --lib is set." << endl;
@@ -196,6 +199,39 @@ int main(int argc, char *argv[]) {
             cerr << e.what() << endl;
             return 1;
         }
+        return 0;
+    }
+
+    if (0 == strcmp("make", argv[1])) {
+        if (3 > argc) {
+            cerr << "Command expects at least one argument - a comma separated stage list.\n"
+                    "and optionally - zero or more arguments to define as pipeline variables.\n"
+                    "Example: kafe make stage1,stage2,stage3";
+            print_usage();
+            return 1;
+        }
+
+        map<const string, const string> envVals;
+        loadEnvMap(envVals);
+
+        string stage_list_s = argv[2];
+        vector<string> stage_list_v = split_csv_arguments(stage_list_s, ',');
+
+        vector<string> extra_args;
+        for (int ii = 4; ii < argc; ++ii) {
+            extra_args.emplace_back(argv[ii]);
+        }
+
+        try {
+            auto maker = Maker();
+            auto logger = Logger();
+
+            return maker.make("kafe.make", envVals, stage_list_v, &logger, extra_args);
+        } catch (RuntimeException &e) {
+            cerr << e.what() << endl;
+            return 1;
+        }
+
         return 0;
     }
 
