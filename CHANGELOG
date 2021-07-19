@@ -1,3 +1,6 @@
+* Sun Jul 18 2021 Matiss Treinis <matiss@hub256.com> - 1.2.0
+- Introduce make command and build pipelines
+
 * Mon May 24 2021 Matiss Treinis <mrtreinis@gmail.com> - 1.1.5.1
 - Support for Apple SoC
 

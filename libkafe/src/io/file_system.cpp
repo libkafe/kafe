@@ -17,13 +17,43 @@
  * limitations under the License.
  */
 
+#include <random>
 #include "kafe/io/file_system.hpp"
 #include "kafe/runtime/runtime_exception.hpp"
 
 using namespace kafe::runtime;
 using namespace kafe::io;
 
+#define K_MAX_TRIES_TMP 1000
+
 namespace kafe::io {
+    std_fs::path FileSystem::tmp_dir(const string &prefix) {
+        auto tmp_dir = std::filesystem::temp_directory_path();
+        unsigned long long i = 0;
+
+        mt19937 rng(random_device{}());
+        uniform_int_distribution<unsigned long long> rand;
+        std_fs::path path;
+
+        while (true) {
+            stringstream str_st;
+            str_st << hex << rand(rng);
+            path = tmp_dir / (prefix + str_st.str());
+
+            if (std_fs::create_directory(path)) {
+                break;
+            }
+
+            if (K_MAX_TRIES_TMP == i) {
+                throw RuntimeException("Could not create random directory");
+            }
+
+            i++;
+        }
+
+        return path;
+    }
+
     bool FileSystem::is_file_or_symlink(const string &path_s) {
         return (std_fs::is_regular_file(path_s) || std_fs::is_symlink(path_s))
                && !std_fs::is_block_file(path_s);

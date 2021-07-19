@@ -43,7 +43,7 @@ namespace kafe::local {
     }
 
     string LocalApi::read_out(FILE *pFile, bool print_output) {
-        const size_t buffer_size = 256;
+        const size_t buffer_size = 8;
         size_t output_size = 4096;
 
         char *output = (char *) malloc(output_size);
@@ -105,7 +105,7 @@ namespace kafe::local {
                     "In directory <%s> executing <%s>", this->current_chdir.c_str(), command.c_str());
             cmd = "cd " + this->current_chdir + " && " + string(command);
         } else {
-            timer = log_listener->emit_info_wt("Executing local command %s", command.c_str());
+            timer = log_listener->emit_info_wt("Executing local command <%s>", command.c_str());
             cmd = string(command);
         }
 

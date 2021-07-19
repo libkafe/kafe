@@ -20,6 +20,7 @@
 #include <fstream>
 #include <iostream>
 #include <kafe/logging.hpp>
+#include <random>
 #include "fnmatch.h"
 
 #include "kafe/io/archive.hpp"
@@ -40,7 +41,7 @@ using namespace kafe::runtime;
 namespace kafe::io {
     static const int ARCHIVE_FILE_BUFFER_S = 4096;
 
-    vector<string> read_ignore_file(std_fs::path *i_file) {
+    vector<string> read_ignore_file(const std_fs::path *i_file) {
         vector<string> patterns = {};
         std::ifstream file(*i_file);
         std::string str;
@@ -60,9 +61,20 @@ namespace kafe::io {
     }
 
     string Archive::tmp_archive_from_directory(const string &directory, ILogEventListener *logger) {
-        auto *name = tmpnam(nullptr); // TODO replace
-        auto upload_name = string(name) + ".tar.gz";
+        mt19937 rng(random_device{}());
+        uniform_int_distribution<unsigned long long> rand;
+
+        stringstream str_st;
+        str_st << "kafe-";
+        str_st << hex << rand(rng);
+        str_st << '-';
+        str_st << time(nullptr);
+        str_st << ".tar.gz";
+
+        auto upload_name = str_st.str();
+
         archive_from_directory(upload_name, directory, logger);
+
         return upload_name;
     }
 

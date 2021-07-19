@@ -36,12 +36,14 @@ namespace kafe {
   };
 
   class Maker {
+    void call_internal(const string &command, ILogEventListener *logger);
+
   public:
     int make(
         const string& file,
         const map<const string, const string> &env_vals,
         const vector <string>& stages,
-        ILogEventListener *log_listener,
+        ILogEventListener *logger,
         const vector <string> &extra_args
     );
   };

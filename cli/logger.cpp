@@ -192,6 +192,7 @@ namespace kafe {
             fputs("\n", stdout);
         }
 
+        fflush(stdout);
         funlockfile(stdout);
         funlockfile(stderr);
     }

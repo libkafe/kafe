@@ -59,6 +59,8 @@ namespace kafe::io {
         static std_fs::path expand(const std_fs::path &p);
 
         static std_fs::path normalize(const std_fs::path &p, const std_fs::path &base);
+
+        static std_fs::path tmp_dir(const string &prefix);
     };
 }
 

@@ -142,7 +142,7 @@ namespace kafe {
 
             out.write(&*input.begin() + pos, subst_pos - pos);
             subst_pos += STRLEN_START_TOK;
-            const char *key = input.substr(subst_pos, end_pos - subst_pos).c_str();
+            auto key = input.substr(subst_pos, end_pos - subst_pos);
             auto env_val = envvals->find(key);
 
             if (env_val != envvals->end()) {

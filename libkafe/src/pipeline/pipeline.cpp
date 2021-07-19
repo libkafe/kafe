@@ -128,10 +128,10 @@ namespace kafe::pipeline {
           }
 
           if (!in_stage_ctx) {
-              throw RuntimeException("Syntax error, line %d, expected stage label, got %s", line_c, line.c_str());
+              throw RuntimeException("Syntax error, line %d, expected stage label, got <%s>", line_c, line.c_str());
           }
 
-          throw RuntimeException("Syntax error, line %d, expected command, got %s", line_c, line.c_str());
+          throw RuntimeException("Syntax error, line %d, expected command or label, got <%s>", line_c, line.c_str());
       }
 
       stages_b.emplace_back(PipelineStage(stage_b, commands_b));
@@ -153,16 +153,7 @@ namespace kafe::pipeline {
       return tasks;
   }
 
-  Pipeline::Pipeline(const vector<PipelineStage> &stages, map<const string, const string> vals) : stages(stages), vals(
-      std::move(vals)) {}
-
-  const vector<PipelineStage> &Pipeline::get_stages() const {
-      return stages;
-  }
-
-  const map<const string, const string> &Pipeline::get_vals() const {
-      return vals;
-  }
+  Pipeline::Pipeline(const vector<PipelineStage> &stages) : stages(stages) {}
 
   bool Pipeline::has_stage(const string &name) {
       return any_of(stages.begin(), stages.end(), [&](const auto &stage) {
@@ -180,42 +171,13 @@ namespace kafe::pipeline {
       throw RuntimeException("Unknown stage");
   }
 
-  Pipeline PipelineParser::from_file(
-      const string &path,
-      const map<const string, const string> &env_vals,
-      const vector<string> &extra_args,
-      const kafe::ILogEventListener *logger
-  ) {
-      map<const string, const string> pipeline_vars;
-      pipeline_vars.insert(env_vals.begin(), env_vals.end());
-
-      for (const auto &extra_arg : extra_args) {
-          auto assignPos = extra_arg.find_first_of('=');
-          if (string::npos == assignPos) {
-              throw RuntimeException(
-                  "Invalid value argument <%s>, expected key value pair (key=value)",
-                  extra_arg.c_str()
-              );
-          }
-
-          pair<string, string> kv = pair<string, string>(
-              extra_arg.substr(0, assignPos),
-              extra_arg.substr(assignPos + 1, string::npos)
-          );
-
-          pipeline_vars.insert(kv);
-      }
-
+  Pipeline PipelineParser::from_file(const string &path) {
       std::ifstream f_in(path);
       std::string pipeline_str((std::istreambuf_iterator<char>(f_in)), std::istreambuf_iterator<char>());
 
       auto stages = parse_pipeline_string(pipeline_str);
-      auto pipeline = Pipeline(stages, pipeline_vars);
+      auto pipeline = Pipeline(stages);
 
       return pipeline;
-  }
-
-  void PipelineExecutor::execute(Pipeline &pipeline) {
-
   }
 }

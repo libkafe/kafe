@@ -36,7 +36,7 @@ using namespace kafe;
 extern char** environ;
 #endif
 
-void loadEnvMap(map<const string, const string> &envVals) {
+void loadEnvMap(map<const string, const string> &env_vals) {
     for (char **current = environ; *current; ++current) {
         const auto envVal = string(*current);
         const auto pos = envVal.find_first_of('=');
@@ -44,7 +44,7 @@ void loadEnvMap(map<const string, const string> &envVals) {
             envVal.substr(0, pos),
             envVal.substr(pos + 1)
         );
-        envVals.insert(p);
+        env_vals.insert(p);
     }
 }
 
@@ -143,8 +143,8 @@ int main(int argc, char *argv[]) {
             return 1;
         }
 
-        map<const string, const string> envVals;
-        loadEnvMap(envVals);
+        map<const string, const string> env_vals;
+        loadEnvMap(env_vals);
 
         string environment = argv[2];
         string task_list_s = argv[3];
@@ -158,7 +158,7 @@ int main(int argc, char *argv[]) {
         try {
             auto project = Project("kafe.lua");
             auto logger = Logger();
-            auto context = Context(envVals, environment, task_list_v, &logger);
+            auto context = Context(env_vals, environment, task_list_v, &logger);
             auto inventory = Inventory();
             project.execute(context, inventory, extra_args);
         } catch (RuntimeException &e) {
@@ -178,8 +178,8 @@ int main(int argc, char *argv[]) {
             return 1;
         }
 
-        map<const string, const string> envVals;
-        loadEnvMap(envVals);
+        map<const string, const string> env_vals;
+        loadEnvMap(env_vals);
 
         string task_list_s = argv[2];
         vector<string> task_list_v = split_csv_arguments(task_list_s, ',');
@@ -192,7 +192,7 @@ int main(int argc, char *argv[]) {
         try {
             auto project = Project("kafe.lua");
             auto logger = Logger();
-            auto context = Context(envVals, "", task_list_v, &logger);
+            auto context = Context(env_vals, "", task_list_v, &logger);
             auto inventory = Inventory();
             project.execute(context, inventory, extra_args);
         } catch (RuntimeException &e) {
@@ -206,13 +206,13 @@ int main(int argc, char *argv[]) {
         if (3 > argc) {
             cerr << "Command expects at least one argument - a comma separated stage list.\n"
                     "and optionally - zero or more arguments to define as pipeline variables.\n"
-                    "Example: kafe make stage1,stage2,stage3";
+                    "Example: kafe make stage1,stage2,stage3 arg1=val1 arg2=val2 [...]";
             print_usage();
             return 1;
         }
 
-        map<const string, const string> envVals;
-        loadEnvMap(envVals);
+        map<const string, const string> env_vals;
+        loadEnvMap(env_vals);
 
         string stage_list_s = argv[2];
         vector<string> stage_list_v = split_csv_arguments(stage_list_s, ',');
@@ -226,13 +226,11 @@ int main(int argc, char *argv[]) {
             auto maker = Maker();
             auto logger = Logger();
 
-            return maker.make("kafe.make", envVals, stage_list_v, &logger, extra_args);
+            return maker.make("kafe.make", env_vals, stage_list_v, &logger, extra_args);
         } catch (RuntimeException &e) {
             cerr << e.what() << endl;
             return 1;
         }
-
-        return 0;
     }
 
     if (0 == strcmp("about", argv[1]) || 0 == strcmp("--about", argv[1])) {

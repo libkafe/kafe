@@ -1,5 +1,8 @@
-Kafe (`/ka'fe:/`) is an open source scriptable automation tool and task runner. It can be used as a common task runner,
-for local and remote automation, application deployment, build system development, build pipeline management and more!
+Kafe (`/ka'fe:/`) is a minimal, portable, open-source remote automation framework, task runner,
+and build automation tool.
+
+It is used as a common task runner, for local and remote automation, application deployment,
+build system development, build pipeline management, and more!
 
 ## Installation
 
@@ -20,8 +23,9 @@ Kafe officially supports:
 [Cheese](http://www.nosuchhost.net/~cheese/fedora/packages/epel-7/x86_64/cheese-release.html) repository to obtain Lua
 5.3 on EL7.
 
-You can also install Kafe building from sources locally using `CMake` - provided all dependencies are met, you should
-be able to build Kafe on nearly any Linux operating system. See bellow for instructions to build from source.
+You can also install Kafe by building it from source code locally using `CMake` - provided all dependencies are met,
+you should be able to build Kafe on nearly any Linux and UNIX operating system. See below for instructions on how
+to build Kafe from the source code.
 
 ## Writing Kafe scripts
 

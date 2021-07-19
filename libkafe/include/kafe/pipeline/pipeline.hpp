@@ -45,14 +45,11 @@ namespace kafe::pipeline {
 
   class Pipeline {
     const vector<PipelineStage> stages;
-    const map<const string, const string> vals;
 
   public:
-    explicit Pipeline(const vector<PipelineStage> &stages, map<const string, const string> map1);
+    explicit Pipeline(const vector<PipelineStage> &stages);
 
     [[nodiscard]] const vector<PipelineStage> &get_stages() const;
-
-    [[nodiscard]] const map<const string, const string> &get_vals() const;
 
     [[nodiscard]] bool has_stage(const string &name);
 
@@ -62,14 +59,7 @@ namespace kafe::pipeline {
   class PipelineParser {
 
   public:
-    static Pipeline
-    from_file(const string &path, const map<const string, const string> &map, const vector<string> &vector1,
-              const kafe::ILogEventListener *p_listener);
-
-  };
-
-  class PipelineExecutor {
-    void execute(Pipeline &pipeline);
+    static Pipeline from_file(const string &path);
   };
 }
 
