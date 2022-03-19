@@ -1,17 +1,17 @@
-#!/usr/bin/env bash
+#!/bin/bash
 set -e
 
 # Clean existing build workspace
-rm -rf /kafe/build/ubuntu/2010 2> /dev/null
+rm -rf /kafe/build/fedora/36 2> /dev/null
 
 # Create build workspace
-mkdir -p /kafe/build/ubuntu/2010/
+mkdir -p /kafe/build/fedora/36/
 
 # Warp to build workspace
-cd /kafe/build/ubuntu/2010/
+cd /kafe/build/fedora/36/
 
 # Prepare build
-cmake -DCMAKE_BUILD_TYPE=Release -DCPACK_GENERATOR=DEB ../../../
+cmake -DCMAKE_BUILD_TYPE=Release -DCPACK_GENERATOR=RPM ../../../
 
 # Compile project
 make
@@ -20,7 +20,7 @@ make
 cpack
 
 # Test install
-apt-get install -y ./kafe-cli*.deb ./libkafe*.deb
+rpm -i ./kafe-cli*.rpm ./libkafe*.rpm
 env kafe about
 
 # Fix permissions

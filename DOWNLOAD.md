@@ -7,10 +7,10 @@ Binary package repositories for Kafe are generously hosted by [Cloudsmith](https
 - [Debian 9](#debian-9)
 - [Debian 10](#debian-10)
 - [Debian 11](#debian-11)
+- [Debian 12](#debian-12)
 - [Ubuntu 18.04](#ubuntu-1804)
 - [Ubuntu 20.04](#ubuntu-2004)
-- [Ubuntu 20.10](#ubuntu-2010)
-- [Ubuntu 21.04](#ubuntu-2104)
+- [Ubuntu 22.04](#ubuntu-2204)
 - [EL7](#el7)
 - [EL8](#el8)
 - [Fedora 31](#fedora-31)
@@ -18,6 +18,7 @@ Binary package repositories for Kafe are generously hosted by [Cloudsmith](https
 - [Fedora 33](#fedora-33)
 - [Fedora 34](#fedora-34)
 - [Fedora 35](#fedora-35)
+- [Fedora 36](#fedora-36)
 - [macOS](https://github.com/libkafe/homebrew-kafe)
 
 See [releases](https://github.com/libkafe/kafe/releases) for all available downloads and historic versions,
@@ -78,6 +79,22 @@ apt update && apt -y install kafe-cli
 kafe about
 ```
 
+#### Debian 12
+
+```shell script
+# Install APT dependencies
+apt update && apt-get install -y apt-transport-https
+# Setup Kafe repository signing key
+apt-key adv --keyserver keyserver.ubuntu.com --recv AEE35447B5D3E4A69860622702F762CA6730E6A7
+# Setup repository
+echo 'deb https://dl.cloudsmith.io/public/kafe/libkafe/deb/debian bookworm main' | \
+  tee /etc/apt/sources.list.d/kafe.list
+# Update APT package lists and install kafe-cli
+apt update && apt -y install kafe-cli
+# Print about
+kafe about
+```
+
 #### Ubuntu 18.04
 
 ```shell script
@@ -106,27 +123,14 @@ apt update && apt -y install kafe-cli
 kafe about
 ```
 
-#### Ubuntu 20.10
+
+#### Ubuntu 22.04
 
 ```shell script
 # Setup Kafe repository signing key
 apt-key adv --keyserver keyserver.ubuntu.com --recv AEE35447B5D3E4A69860622702F762CA6730E6A7
 # Setup repository
-echo 'deb https://dl.cloudsmith.io/public/kafe/libkafe/deb/ubuntu groovy main' | \
-  tee /etc/apt/sources.list.d/kafe.list
-# Update APT package lists and install kafe-cli
-apt update && apt -y install kafe-cli
-# Print about
-kafe about
-```
-
-#### Ubuntu 21.04
-
-```shell script
-# Setup Kafe repository signing key
-apt-key adv --keyserver keyserver.ubuntu.com --recv AEE35447B5D3E4A69860622702F762CA6730E6A7
-# Setup repository
-echo 'deb https://dl.cloudsmith.io/public/kafe/libkafe/deb/ubuntu hirsute main' | \
+echo 'deb https://dl.cloudsmith.io/public/kafe/libkafe/deb/ubuntu jammy main' | \
   tee /etc/apt/sources.list.d/kafe.list
 # Update APT package lists and install kafe-cli
 apt update && apt -y install kafe-cli
@@ -208,12 +212,21 @@ dnf install -y kafe-cli
 kafe about
 ```
 
-
 #### Fedora 35
 
 ```shell script
 # Setup repository
 curl -1sLf 'https://dl.cloudsmith.io/public/kafe/libkafe/cfg/setup/bash.rpm.sh' | distro=fedora codename=35 bash
+# Install kafe-cli
+dnf install -y kafe-cli
+# Print about
+kafe about
+```
+#### Fedora 35
+
+```shell script
+# Setup repository
+curl -1sLf 'https://dl.cloudsmith.io/public/kafe/libkafe/cfg/setup/bash.rpm.sh' | distro=fedora codename=36 bash
 # Install kafe-cli
 dnf install -y kafe-cli
 # Print about

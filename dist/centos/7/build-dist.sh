@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Enable software collections LLVM toolset (7.0)
 source scl_source enable llvm-toolset-7.0
 

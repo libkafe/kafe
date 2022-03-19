@@ -9,9 +9,9 @@ See [available package downloads and repositories](DOWNLOAD.md).
 You can easily install and use libkafe on following operating systems:
 
 - **RHEL/EL** versions [7<sup>1</sup>](./DOWNLOAD.md#el7), [8](./DOWNLOAD.md#el8)
-- **Fedora** versions [31](./DOWNLOAD.md#fedora-31), [32](./DOWNLOAD.md#fedora-32), [33](./DOWNLOAD.md#fedora-33), [34](./DOWNLOAD.md#fedora-34), [35](./DOWNLOAD.md#fedora-35)
-- **Ubuntu** versions [18.04](./DOWNLOAD.md#ubuntu-1804), [20.04](./DOWNLOAD.md#ubuntu-2004), [20.10](./DOWNLOAD.md#ubuntu-2010), [21.04](./DOWNLOAD.md#ubuntu-2104)
-- **Debian** versions [9](./DOWNLOAD.md#debian-9), [10](./DOWNLOAD.md#debian-10), [11](./DOWNLOAD.md#debian-11)
+- **Fedora** versions [31](./DOWNLOAD.md#fedora-31), [32](./DOWNLOAD.md#fedora-32), [33](./DOWNLOAD.md#fedora-33), [34](./DOWNLOAD.md#fedora-34), [35](./DOWNLOAD.md#fedora-35), [36](./DOWNLOAD.md#fedora-36)
+- **Ubuntu** versions [18.04](./DOWNLOAD.md#ubuntu-1804), [20.04](./DOWNLOAD.md#ubuntu-2004), [22.04](./DOWNLOAD.md#ubuntu-2204)
+- **Debian** versions [9](./DOWNLOAD.md#debian-9), [10](./DOWNLOAD.md#debian-10), [11](./DOWNLOAD.md#debian-11), [12](./DOWNLOAD.md#debian-11)
 - **macOS** versions 10.5 (Catalina), 11 (Big Sur) and newer, using [Homebrew vendor tap](https://github.com/libkafe/homebrew-kafe).
 
 <sup>1</sup> - EL7 does not ship with Lua 5.3. We currently use
@@ -233,7 +233,7 @@ C11 and C++17 compatible C/C++ compiler toolchain.
 
 See [/dist/](./dist) directory for example Docker build files and scripts per each supported build target.
 
-You can also refer to [build-dist.sh](./build-dist.sh) for how to build distribution specific packages
+You can also refer to [Makefile](./Makefile) for how to build distribution specific packages
 using Docker.
 
 #### Building on macOS

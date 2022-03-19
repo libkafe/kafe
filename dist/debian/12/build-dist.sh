@@ -2,13 +2,13 @@
 set -e
 
 # Clean existing build workspace
-rm -rf /kafe/build/ubuntu/1804 2> /dev/null
+rm -rf /kafe/build/debian/12 2> /dev/null
 
 # Create build workspace
-mkdir -p /kafe/build/ubuntu/1804/
+mkdir -p /kafe/build/debian/12/
 
 # Warp to build workspace
-cd /kafe/build/ubuntu/1804/
+cd /kafe/build/debian/12/
 
 # Prepare build
 cmake -DCMAKE_BUILD_TYPE=Release -DCPACK_GENERATOR=DEB ../../../

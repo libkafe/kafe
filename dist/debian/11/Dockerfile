@@ -1,4 +1,4 @@
-FROM debian:bullseye
+FROM debian:11
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get upgrade -y && \
@@ -6,14 +6,14 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
         wget \
         cmake \
         build-essential \
-        clang-9 \
-        liblua5.3-dev \
+        clang-11 \
+        liblua5.4-dev \
         libcurl4-gnutls-dev \
         libarchive-dev \
         libssh-dev \
         libgit2-dev
 
-ENV CC /usr/bin/clang-9
-ENV CXX /usr/bin/clang++-9
+ENV CC /usr/bin/clang-11
+ENV CXX /usr/bin/clang++-11
 
 CMD /kafe/dist/debian/11/build-dist.sh

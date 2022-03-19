@@ -1,4 +1,4 @@
-FROM ubuntu:21.04
+FROM ubuntu:22.04
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get upgrade -y && \
@@ -16,4 +16,4 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
 ENV CC /usr/bin/clang-11
 ENV CXX /usr/bin/clang++-11
 
-CMD /kafe/dist/ubuntu/2104/build-dist.sh
+CMD /kafe/dist/ubuntu/2204/build-dist.sh
