@@ -162,64 +162,64 @@ build-all: clean \
 	 build-fedora-38
 
 publish-el-7:
-	cloudsmith push rpm kafe/libkafe/el/7 build-artifact/centos-7/kafe-cli-1.1.6-1.x86_64.el7.rpm
-	cloudsmith push rpm kafe/libkafe/el/7 build-artifact/centos-7/libkafe-1.1.6-1.x86_64.el7.rpm
-	cloudsmith push rpm kafe/libkafe/el/7 build-artifact/centos-7/libkafe-devel-1.1.6-1.x86_64.el7.rpm
+	cloudsmith push rpm kafe/libkafe/el/7 build-artifact/centos-7/kafe-cli-1.1.7-1.x86_64.el7.rpm
+	cloudsmith push rpm kafe/libkafe/el/7 build-artifact/centos-7/libkafe-1.1.7-1.x86_64.el7.rpm
+	cloudsmith push rpm kafe/libkafe/el/7 build-artifact/centos-7/libkafe-devel-1.1.7-1.x86_64.el7.rpm
 
 publish-el-8:
-	cloudsmith push rpm kafe/libkafe/el/8 build-artifact/almalinux-8/kafe-cli-1.1.6-1.x86_64.el8.rpm
-	cloudsmith push rpm kafe/libkafe/el/8 build-artifact/almalinux-8/libkafe-1.1.6-1.x86_64.el8.rpm
-	cloudsmith push rpm kafe/libkafe/el/8 build-artifact/almalinux-8/libkafe-devel-1.1.6-1.x86_64.el8.rpm
+	cloudsmith push rpm kafe/libkafe/el/8 build-artifact/almalinux-8/kafe-cli-1.1.7-1.x86_64.el8.rpm
+	cloudsmith push rpm kafe/libkafe/el/8 build-artifact/almalinux-8/libkafe-1.1.7-1.x86_64.el8.rpm
+	cloudsmith push rpm kafe/libkafe/el/8 build-artifact/almalinux-8/libkafe-devel-1.1.7-1.x86_64.el8.rpm
 
 publish-el-9:
-	cloudsmith push rpm kafe/libkafe/el/9 build-artifact/almalinux-9/kafe-cli-1.1.6-1.x86_64.el9.rpm
-	cloudsmith push rpm kafe/libkafe/el/9 build-artifact/almalinux-9/libkafe-1.1.6-1.x86_64.el9.rpm
-	cloudsmith push rpm kafe/libkafe/el/9 build-artifact/almalinux-9/libkafe-devel-1.1.6-1.x86_64.el9.rpm
+	cloudsmith push rpm kafe/libkafe/el/9 build-artifact/almalinux-9/kafe-cli-1.1.7-1.x86_64.el9.rpm
+	cloudsmith push rpm kafe/libkafe/el/9 build-artifact/almalinux-9/libkafe-1.1.7-1.x86_64.el9.rpm
+	cloudsmith push rpm kafe/libkafe/el/9 build-artifact/almalinux-9/libkafe-devel-1.1.7-1.x86_64.el9.rpm
 
 publish-debian-10:
-	cloudsmith push deb kafe/libkafe/debian/buster build-artifact/debian-10/kafe-cli_1.1.6_amd64.deb10.deb
-	cloudsmith push deb kafe/libkafe/debian/buster build-artifact/debian-10/libkafe_1.1.6_amd64.deb10.deb
-	cloudsmith push deb kafe/libkafe/debian/buster build-artifact/debian-10/libkafe-dev_1.1.6_amd64.deb10.deb
+	cloudsmith push deb kafe/libkafe/debian/buster build-artifact/debian-10/kafe-cli_1.1.7_amd64.deb10.deb
+	cloudsmith push deb kafe/libkafe/debian/buster build-artifact/debian-10/libkafe_1.1.7_amd64.deb10.deb
+	cloudsmith push deb kafe/libkafe/debian/buster build-artifact/debian-10/libkafe-dev_1.1.7_amd64.deb10.deb
 
 publish-debian-11:
-	cloudsmith push deb kafe/libkafe/debian/bullseye build-artifact/debian-11/kafe-cli_1.1.6_amd64.deb11.deb
-	cloudsmith push deb kafe/libkafe/debian/bullseye build-artifact/debian-11/libkafe_1.1.6_amd64.deb11.deb
-	cloudsmith push deb kafe/libkafe/debian/bullseye build-artifact/debian-11/libkafe-dev_1.1.6_amd64.deb11.deb
+	cloudsmith push deb kafe/libkafe/debian/bullseye build-artifact/debian-11/kafe-cli_1.1.7_amd64.deb11.deb
+	cloudsmith push deb kafe/libkafe/debian/bullseye build-artifact/debian-11/libkafe_1.1.7_amd64.deb11.deb
+	cloudsmith push deb kafe/libkafe/debian/bullseye build-artifact/debian-11/libkafe-dev_1.1.7_amd64.deb11.deb
 
 publish-debian-12:
-	cloudsmith push deb kafe/libkafe/debian/bookworm build-artifact/debian-12/kafe-cli_1.1.6_amd64.deb12.deb
-	cloudsmith push deb kafe/libkafe/debian/bookworm build-artifact/debian-12/libkafe_1.1.6_amd64.deb12.deb
-	cloudsmith push deb kafe/libkafe/debian/bookworm build-artifact/debian-12/libkafe-dev_1.1.6_amd64.deb12.deb
+	cloudsmith push deb kafe/libkafe/debian/bookworm build-artifact/debian-12/kafe-cli_1.1.7_amd64.deb12.deb
+	cloudsmith push deb kafe/libkafe/debian/bookworm build-artifact/debian-12/libkafe_1.1.7_amd64.deb12.deb
+	cloudsmith push deb kafe/libkafe/debian/bookworm build-artifact/debian-12/libkafe-dev_1.1.7_amd64.deb12.deb
 
 publish-ubuntu-1804:
-	cloudsmith push deb kafe/libkafe/ubuntu/bionic build-artifact/ubuntu-1804/kafe-cli_1.1.6_amd64.ubu1804.deb
-	cloudsmith push deb kafe/libkafe/ubuntu/bionic build-artifact/ubuntu-1804/libkafe_1.1.6_amd64.ubu1804.deb
-	cloudsmith push deb kafe/libkafe/ubuntu/bionic build-artifact/ubuntu-1804/libkafe-dev_1.1.6_amd64.ubu1804.deb
+	cloudsmith push deb kafe/libkafe/ubuntu/bionic build-artifact/ubuntu-1804/kafe-cli_1.1.7_amd64.ubu1804.deb
+	cloudsmith push deb kafe/libkafe/ubuntu/bionic build-artifact/ubuntu-1804/libkafe_1.1.7_amd64.ubu1804.deb
+	cloudsmith push deb kafe/libkafe/ubuntu/bionic build-artifact/ubuntu-1804/libkafe-dev_1.1.7_amd64.ubu1804.deb
 
 publish-ubuntu-2004:
-	cloudsmith push deb kafe/libkafe/ubuntu/focal build-artifact/ubuntu-2004/kafe-cli_1.1.6_amd64.ubu2004.deb
-	cloudsmith push deb kafe/libkafe/ubuntu/focal build-artifact/ubuntu-2004/libkafe_1.1.6_amd64.ubu2004.deb
-	cloudsmith push deb kafe/libkafe/ubuntu/focal build-artifact/ubuntu-2004/libkafe-dev_1.1.6_amd64.ubu2004.deb
+	cloudsmith push deb kafe/libkafe/ubuntu/focal build-artifact/ubuntu-2004/kafe-cli_1.1.7_amd64.ubu2004.deb
+	cloudsmith push deb kafe/libkafe/ubuntu/focal build-artifact/ubuntu-2004/libkafe_1.1.7_amd64.ubu2004.deb
+	cloudsmith push deb kafe/libkafe/ubuntu/focal build-artifact/ubuntu-2004/libkafe-dev_1.1.7_amd64.ubu2004.deb
 
 publish-ubuntu-2204:
-	cloudsmith push deb kafe/libkafe/ubuntu/jammy build-artifact/ubuntu-2204/kafe-cli_1.1.6_amd64.ubu2204.deb
-	cloudsmith push deb kafe/libkafe/ubuntu/jammy build-artifact/ubuntu-2204/libkafe_1.1.6_amd64.ubu2204.deb
-	cloudsmith push deb kafe/libkafe/ubuntu/jammy build-artifact/ubuntu-2204/libkafe-dev_1.1.6_amd64.ubu2204.deb
+	cloudsmith push deb kafe/libkafe/ubuntu/jammy build-artifact/ubuntu-2204/kafe-cli_1.1.7_amd64.ubu2204.deb
+	cloudsmith push deb kafe/libkafe/ubuntu/jammy build-artifact/ubuntu-2204/libkafe_1.1.7_amd64.ubu2204.deb
+	cloudsmith push deb kafe/libkafe/ubuntu/jammy build-artifact/ubuntu-2204/libkafe-dev_1.1.7_amd64.ubu2204.deb
 
 publish-fedora-36:
-	cloudsmith push rpm kafe/libkafe/fedora/36 build-artifact/fedora-36/kafe-cli-1.1.6-1.x86_64.f36.rpm
-	cloudsmith push rpm kafe/libkafe/fedora/36 build-artifact/fedora-36/libkafe-1.1.6-1.x86_64.f36.rpm
-	cloudsmith push rpm kafe/libkafe/fedora/36 build-artifact/fedora-36/libkafe-devel-1.1.6-1.x86_64.f36.rpm
+	cloudsmith push rpm kafe/libkafe/fedora/36 build-artifact/fedora-36/kafe-cli-1.1.7-1.x86_64.f36.rpm
+	cloudsmith push rpm kafe/libkafe/fedora/36 build-artifact/fedora-36/libkafe-1.1.7-1.x86_64.f36.rpm
+	cloudsmith push rpm kafe/libkafe/fedora/36 build-artifact/fedora-36/libkafe-devel-1.1.7-1.x86_64.f36.rpm
 
 publish-fedora-37:
-	cloudsmith push rpm kafe/libkafe/fedora/37 build-artifact/fedora-37/kafe-cli-1.1.6-1.x86_64.f37.rpm
-	cloudsmith push rpm kafe/libkafe/fedora/37 build-artifact/fedora-37/libkafe-1.1.6-1.x86_64.f37.rpm
-	cloudsmith push rpm kafe/libkafe/fedora/37 build-artifact/fedora-37/libkafe-devel-1.1.6-1.x86_64.f37.rpm
+	cloudsmith push rpm kafe/libkafe/fedora/37 build-artifact/fedora-37/kafe-cli-1.1.7-1.x86_64.f37.rpm
+	cloudsmith push rpm kafe/libkafe/fedora/37 build-artifact/fedora-37/libkafe-1.1.7-1.x86_64.f37.rpm
+	cloudsmith push rpm kafe/libkafe/fedora/37 build-artifact/fedora-37/libkafe-devel-1.1.7-1.x86_64.f37.rpm
 
 publish-fedora-38:
-	cloudsmith push rpm kafe/libkafe/fedora/38 build-artifact/fedora-38/kafe-cli-1.1.6-1.x86_64.f38.rpm
-	cloudsmith push rpm kafe/libkafe/fedora/38 build-artifact/fedora-38/libkafe-1.1.6-1.x86_64.f38.rpm
-	cloudsmith push rpm kafe/libkafe/fedora/38 build-artifact/fedora-38/libkafe-devel-1.1.6-1.x86_64.f38.rpm
+	cloudsmith push rpm kafe/libkafe/fedora/38 build-artifact/fedora-38/kafe-cli-1.1.7-1.x86_64.f38.rpm
+	cloudsmith push rpm kafe/libkafe/fedora/38 build-artifact/fedora-38/libkafe-1.1.7-1.x86_64.f38.rpm
+	cloudsmith push rpm kafe/libkafe/fedora/38 build-artifact/fedora-38/libkafe-devel-1.1.7-1.x86_64.f38.rpm
 
 publish-all: \
 	 publish-el-7 \
