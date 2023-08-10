@@ -2,13 +2,13 @@
 set -e
 
 # Clean existing build workspace
-rm -rf /kafe/build/fedora/35 2> /dev/null
+rm -rf /kafe/build/almalinux/8 2> /dev/null
 
 # Create build workspace
-mkdir -p /kafe/build/fedora/35/
+mkdir -p /kafe/build/almalinux/8/
 
 # Warp to build workspace
-cd /kafe/build/fedora/35/
+cd /kafe/build/almalinux/8/
 
 # Prepare build
 cmake -DCMAKE_BUILD_TYPE=Release -DCPACK_GENERATOR=RPM ../../../

@@ -5,19 +5,16 @@ clean:
 clean-docker-build:
 	docker rmi kafe/centos:7-build
 	docker rmi kafe/almalinux:8-build
-	docker rmi kafe/debian:9-build
+	docker rmi kafe/almalinux:9-build
 	docker rmi kafe/debian:10-build
 	docker rmi kafe/debian:11-build
 	docker rmi kafe/debian:12-build
 	docker rmi kafe/ubuntu:1804-build
 	docker rmi kafe/ubuntu:2004-build
 	docker rmi kafe/ubuntu:2204-build
-	docker rmi kafe/fedora:31-build
-	docker rmi kafe/fedora:32-build
-	docker rmi kafe/fedora:33-build
-	docker rmi kafe/fedora:34-build
-	docker rmi kafe/fedora:35-build
 	docker rmi kafe/fedora:36-build
+	docker rmi kafe/fedora:37-build
+	docker rmi kafe/fedora:38-build
 
 build-el-7:
 	-rm -rf build-artifact/centos-7/
@@ -42,18 +39,6 @@ build-el-8:
 	cp build/almalinux/8/kafe-cli-*.rpm build-artifact/almalinux-8/
 	cp build/almalinux/8/libkafe-*.rpm build-artifact/almalinux-8/
 	for f in build-artifact/almalinux-8/*; do mv -v "$$f" `sed "s/\.rpm/\.el8\.rpm/" <<< "$$f"`; done
-
-build-debian-9:
-	-rm -rf build-artifact/debian-9/
-	if [[ "$(docker images -q "kafe/debian:9-build" 2> /dev/null)" == "" ]]; then \
-	  docker build -t kafe/debian:9-build dist/debian/9; \
-	fi
-
-	docker run -it --rm -v `pwd`:/kafe:z kafe/debian:9-build
-	mkdir -p build-artifact/debian-9/
-	cp build/debian/9/kafe-cli*.deb build-artifact/debian-9/
-	cp build/debian/9/libkafe*.deb build-artifact/debian-9/
-	for f in build-artifact/debian-9/*; do mv -v "$$f" `sed "s/\.deb/\.deb9\.deb/" <<< "$$f"`; done
 
 build-debian-10:
 	-rm -rf build-artifact/debian-10/
@@ -127,66 +112,6 @@ build-ubuntu-2204:
 	cp build/ubuntu/2204/libkafe*.deb build-artifact/ubuntu-2204/
 	for f in build-artifact/ubuntu-2204/*; do mv -v "$$f" `sed "s/\.deb/\.ubu2204\.deb/" <<< "$$f"`; done
 
-build-fedora-31:
-	-rm -rf build-artifact/fedora-31/
-	if [[ "$(docker images -q "kafe/fedora:31-build" 2> /dev/null)" == "" ]]; then \
-	  docker build -t kafe/fedora:31-build dist/fedora/31; \
-	fi
-
-	docker run -it --rm -v `pwd`:/kafe:z kafe/fedora:31-build
-	mkdir -p build-artifact/fedora-31/
-	cp build/fedora/31/kafe-cli-*.rpm build-artifact/fedora-31/
-	cp build/fedora/31/libkafe-*.rpm build-artifact/fedora-31/
-	for f in build-artifact/fedora-31/*; do mv -v "$$f" `sed "s/\.rpm/\.f31\.rpm/" <<< "$$f"`; done
-
-build-fedora-32:
-	-rm -rf build-artifact/fedora-32/
-	if [[ "$(docker images -q "kafe/fedora:32-build" 2> /dev/null)" == "" ]]; then \
-	  docker build -t kafe/fedora:32-build dist/fedora/32; \
-	fi
-
-	docker run -it --rm -v `pwd`:/kafe:z kafe/fedora:32-build
-	mkdir -p build-artifact/fedora-32/
-	cp build/fedora/32/kafe-cli-*.rpm build-artifact/fedora-32/
-	cp build/fedora/32/libkafe-*.rpm build-artifact/fedora-32/
-	for f in build-artifact/fedora-32/*; do mv -v "$$f" `sed "s/\.rpm/\.f32\.rpm/" <<< "$$f"`; done
-
-build-fedora-33:
-	-rm -rf build-artifact/fedora-33/
-	if [[ "$(docker images -q "kafe/fedora:33-build" 2> /dev/null)" == "" ]]; then \
-	  docker build -t kafe/fedora:33-build dist/fedora/33; \
-	fi
-
-	docker run -it --rm -v `pwd`:/kafe:z kafe/fedora:33-build
-	mkdir -p build-artifact/fedora-33/
-	cp build/fedora/33/kafe-cli-*.rpm build-artifact/fedora-33/
-	cp build/fedora/33/libkafe-*.rpm build-artifact/fedora-33/
-	for f in build-artifact/fedora-33/*; do mv -v "$$f" `sed "s/\.rpm/\.f33\.rpm/" <<< "$$f"`; done
-
-build-fedora-34:
-	-rm -rf build-artifact/fedora-34/
-	if [[ "$(docker images -q "kafe/fedora:34-build" 2> /dev/null)" == "" ]]; then \
-	  docker build -t kafe/fedora:34-build dist/fedora/34; \
-	fi
-
-	docker run -it --rm -v `pwd`:/kafe:z kafe/fedora:34-build
-	mkdir -p build-artifact/fedora-34/
-	cp build/fedora/34/kafe-cli-*.rpm build-artifact/fedora-34/
-	cp build/fedora/34/libkafe-*.rpm build-artifact/fedora-34/
-	for f in build-artifact/fedora-34/*; do mv -v "$$f" `sed "s/\.rpm/\.f34\.rpm/" <<< "$$f"`; done
-
-build-fedora-35:
-	-rm -rf build-artifact/fedora-35/
-	if [[ "$(docker images -q "kafe/fedora:35-build" 2> /dev/null)" == "" ]]; then \
-	  docker build -t kafe/fedora:35-build dist/fedora/35; \
-	fi
-
-	docker run -it --rm -v `pwd`:/kafe:z kafe/fedora:35-build
-	mkdir -p build-artifact/fedora-35/
-	cp build/fedora/35/kafe-cli-*.rpm build-artifact/fedora-35/
-	cp build/fedora/35/libkafe-*.rpm build-artifact/fedora-35/
-	for f in build-artifact/fedora-35/*; do mv -v "$$f" `sed "s/\.rpm/\.f35\.rpm/" <<< "$$f"`; done
-
 build-fedora-36:
 	-rm -rf build-artifact/fedora-36/
 		if [[ "$(docker images -q "kafe/fedora:36-build" 2> /dev/null)" == "" ]]; then \
@@ -199,22 +124,42 @@ build-fedora-36:
 	cp build/fedora/36/libkafe-*.rpm build-artifact/fedora-36/
 	for f in build-artifact/fedora-36/*; do mv -v "$$f" `sed "s/\.rpm/\.f36\.rpm/" <<< "$$f"`; done
 
+build-fedora-37:
+	-rm -rf build-artifact/fedora-37/
+		if [[ "$(docker images -q "kafe/fedora:37-build" 2> /dev/null)" == "" ]]; then \
+	  docker build -t kafe/fedora:37-build dist/fedora/37; \
+	fi
+
+	docker run -it --rm -v `pwd`:/kafe:z kafe/fedora:37-build
+	mkdir -p build-artifact/fedora-37/
+	cp build/fedora/37/kafe-cli-*.rpm build-artifact/fedora-37/
+	cp build/fedora/37/libkafe-*.rpm build-artifact/fedora-37/
+	for f in build-artifact/fedora-37/*; do mv -v "$$f" `sed "s/\.rpm/\.f37\.rpm/" <<< "$$f"`; done
+
+build-fedora-38:
+	-rm -rf build-artifact/fedora-38/
+		if [[ "$(docker images -q "kafe/fedora:38-build" 2> /dev/null)" == "" ]]; then \
+	  docker build -t kafe/fedora:38-build dist/fedora/38; \
+	fi
+
+	docker run -it --rm -v `pwd`:/kafe:z kafe/fedora:38-build
+	mkdir -p build-artifact/fedora-38/
+	cp build/fedora/38/kafe-cli-*.rpm build-artifact/fedora-38/
+	cp build/fedora/38/libkafe-*.rpm build-artifact/fedora-38/
+	for f in build-artifact/fedora-38/*; do mv -v "$$f" `sed "s/\.rpm/\.f38\.rpm/" <<< "$$f"`; done
+
 build-all: clean \
 	 build-el-7 \
 	 build-el-8 \
-	 build-debian-9 \
 	 build-debian-10 \
 	 build-debian-11 \
 	 build-debian-12 \
 	 build-ubuntu-1804 \
 	 build-ubuntu-2004 \
 	 build-ubuntu-2204 \
-	 build-fedora-31 \
-	 build-fedora-32 \
-	 build-fedora-33 \
-	 build-fedora-34 \
-	 build-fedora-35 \
-	 build-fedora-36
+	 build-fedora-36 \
+	 build-fedora-37 \
+	 build-fedora-38
 
 publish-el-7:
 	cloudsmith push rpm kafe/libkafe/el/7 build-artifact/centos-7/kafe-cli-1.1.6-1.x86_64.el7.rpm
@@ -226,10 +171,10 @@ publish-el-8:
 	cloudsmith push rpm kafe/libkafe/el/8 build-artifact/almalinux-8/libkafe-1.1.6-1.x86_64.el8.rpm
 	cloudsmith push rpm kafe/libkafe/el/8 build-artifact/almalinux-8/libkafe-devel-1.1.6-1.x86_64.el8.rpm
 
-publish-debian-9:
-	cloudsmith push deb kafe/libkafe/debian/stretch build-artifact/debian-9/kafe-cli_1.1.6_amd64.deb9.deb
-	cloudsmith push deb kafe/libkafe/debian/stretch build-artifact/debian-9/libkafe_1.1.6_amd64.deb9.deb
-	cloudsmith push deb kafe/libkafe/debian/stretch build-artifact/debian-9/libkafe-dev_1.1.6_amd64.deb9.deb
+publish-el-9:
+	cloudsmith push rpm kafe/libkafe/el/9 build-artifact/almalinux-9/kafe-cli-1.1.6-1.x86_64.el9.rpm
+	cloudsmith push rpm kafe/libkafe/el/9 build-artifact/almalinux-9/libkafe-1.1.6-1.x86_64.el9.rpm
+	cloudsmith push rpm kafe/libkafe/el/9 build-artifact/almalinux-9/libkafe-devel-1.1.6-1.x86_64.el9.rpm
 
 publish-debian-10:
 	cloudsmith push deb kafe/libkafe/debian/buster build-artifact/debian-10/kafe-cli_1.1.6_amd64.deb10.deb
@@ -261,49 +206,31 @@ publish-ubuntu-2204:
 	cloudsmith push deb kafe/libkafe/ubuntu/jammy build-artifact/ubuntu-2204/libkafe_1.1.6_amd64.ubu2204.deb
 	cloudsmith push deb kafe/libkafe/ubuntu/jammy build-artifact/ubuntu-2204/libkafe-dev_1.1.6_amd64.ubu2204.deb
 
-publish-fedora-31:
-	cloudsmith push rpm kafe/libkafe/fedora/31 build-artifact/fedora-31/kafe-cli-1.1.6-1.x86_64.f31.rpm
-	cloudsmith push rpm kafe/libkafe/fedora/31 build-artifact/fedora-31/libkafe-1.1.6-1.x86_64.f31.rpm
-	cloudsmith push rpm kafe/libkafe/fedora/31 build-artifact/fedora-31/libkafe-devel-1.1.6-1.x86_64.f31.rpm
-
-publish-fedora-32:
-	cloudsmith push rpm kafe/libkafe/fedora/32 build-artifact/fedora-32/kafe-cli-1.1.6-1.x86_64.f32.rpm
-	cloudsmith push rpm kafe/libkafe/fedora/32 build-artifact/fedora-32/libkafe-1.1.6-1.x86_64.f32.rpm
-	cloudsmith push rpm kafe/libkafe/fedora/32 build-artifact/fedora-32/libkafe-devel-1.1.6-1.x86_64.f32.rpm
-
-publish-fedora-33:
-	cloudsmith push rpm kafe/libkafe/fedora/33 build-artifact/fedora-33/kafe-cli-1.1.6-1.x86_64.f33.rpm
-	cloudsmith push rpm kafe/libkafe/fedora/33 build-artifact/fedora-33/libkafe-1.1.6-1.x86_64.f33.rpm
-	cloudsmith push rpm kafe/libkafe/fedora/33 build-artifact/fedora-33/libkafe-devel-1.1.6-1.x86_64.f33.rpm
-
-publish-fedora-34:
-	cloudsmith push rpm kafe/libkafe/fedora/34 build-artifact/fedora-34/kafe-cli-1.1.6-1.x86_64.f34.rpm
-	cloudsmith push rpm kafe/libkafe/fedora/34 build-artifact/fedora-34/libkafe-1.1.6-1.x86_64.f34.rpm
-	cloudsmith push rpm kafe/libkafe/fedora/34 build-artifact/fedora-34/libkafe-devel-1.1.6-1.x86_64.f34.rpm
-
-publish-fedora-35:
-	cloudsmith push rpm kafe/libkafe/fedora/35 build-artifact/fedora-35/kafe-cli-1.1.6-1.x86_64.f35.rpm
-	cloudsmith push rpm kafe/libkafe/fedora/35 build-artifact/fedora-35/libkafe-1.1.6-1.x86_64.f35.rpm
-	cloudsmith push rpm kafe/libkafe/fedora/35 build-artifact/fedora-35/libkafe-devel-1.1.6-1.x86_64.f35.rpm
-
 publish-fedora-36:
 	cloudsmith push rpm kafe/libkafe/fedora/36 build-artifact/fedora-36/kafe-cli-1.1.6-1.x86_64.f36.rpm
 	cloudsmith push rpm kafe/libkafe/fedora/36 build-artifact/fedora-36/libkafe-1.1.6-1.x86_64.f36.rpm
 	cloudsmith push rpm kafe/libkafe/fedora/36 build-artifact/fedora-36/libkafe-devel-1.1.6-1.x86_64.f36.rpm
 
+publish-fedora-37:
+	cloudsmith push rpm kafe/libkafe/fedora/37 build-artifact/fedora-37/kafe-cli-1.1.6-1.x86_64.f37.rpm
+	cloudsmith push rpm kafe/libkafe/fedora/37 build-artifact/fedora-37/libkafe-1.1.6-1.x86_64.f37.rpm
+	cloudsmith push rpm kafe/libkafe/fedora/37 build-artifact/fedora-37/libkafe-devel-1.1.6-1.x86_64.f37.rpm
+
+publish-fedora-38:
+	cloudsmith push rpm kafe/libkafe/fedora/38 build-artifact/fedora-38/kafe-cli-1.1.6-1.x86_64.f38.rpm
+	cloudsmith push rpm kafe/libkafe/fedora/38 build-artifact/fedora-38/libkafe-1.1.6-1.x86_64.f38.rpm
+	cloudsmith push rpm kafe/libkafe/fedora/38 build-artifact/fedora-38/libkafe-devel-1.1.6-1.x86_64.f38.rpm
+
 publish-all: \
 	 publish-el-7 \
 	 publish-el-8 \
-	 publish-debian-9 \
+	 publish-el-9 \
 	 publish-debian-10 \
 	 publish-debian-11 \
 	 publish-debian-12 \
 	 publish-ubuntu-1804 \
 	 publish-ubuntu-2004 \
 	 publish-ubuntu-2204 \
-	 publish-fedora-31 \
-	 publish-fedora-32 \
-	 publish-fedora-33 \
-	 publish-fedora-34 \
-	 publish-fedora-35 \
-	 publish-fedora-36
+	 publish-fedora-36 \
+	 publish-fedora-37 \
+	 publish-fedora-38

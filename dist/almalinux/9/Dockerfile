@@ -1,6 +1,8 @@
-FROM fedora:31
+FROM almalinux:9
 
 RUN yum -y update && \
+    yum -y install dnf-plugins-core && \
+    yum config-manager --set-enabled powertools && \
     yum -y install \
         make \
         rpm-build \
@@ -13,7 +15,7 @@ RUN yum -y update && \
         libssh-devel \
         libgit2-devel
 
-ENV CC /usr/bin/clang-9
-ENV CXX /usr/bin/clang++-9
+ENV CC /usr/bin/clang-15
+ENV CXX /usr/bin/clang++-15
 
-CMD /kafe/dist/fedora/31/build-dist.sh
+CMD /kafe/dist/almalinux/9/build-dist.sh

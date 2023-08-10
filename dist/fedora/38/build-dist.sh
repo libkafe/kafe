@@ -2,13 +2,13 @@
 set -e
 
 # Clean existing build workspace
-rm -rf /kafe/build/fedora/31 2> /dev/null
+rm -rf /kafe/build/fedora/38 2> /dev/null
 
 # Create build workspace
-mkdir -p /kafe/build/fedora/31/
+mkdir -p /kafe/build/fedora/38/
 
 # Warp to build workspace
-cd /kafe/build/fedora/31/
+cd /kafe/build/fedora/38/
 
 # Prepare build
 cmake -DCMAKE_BUILD_TYPE=Release -DCPACK_GENERATOR=RPM ../../../

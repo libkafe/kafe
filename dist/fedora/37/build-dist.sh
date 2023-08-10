@@ -2,16 +2,16 @@
 set -e
 
 # Clean existing build workspace
-rm -rf /kafe/build/debian/9 2> /dev/null
+rm -rf /kafe/build/fedora/37 2> /dev/null
 
 # Create build workspace
-mkdir -p /kafe/build/debian/9/
+mkdir -p /kafe/build/fedora/37/
 
 # Warp to build workspace
-cd /kafe/build/debian/9/
+cd /kafe/build/fedora/37/
 
 # Prepare build
-cmake -DCMAKE_BUILD_TYPE=Release -DCPACK_GENERATOR=DEB ../../../
+cmake -DCMAKE_BUILD_TYPE=Release -DCPACK_GENERATOR=RPM ../../../
 
 # Compile project
 make
@@ -20,7 +20,7 @@ make
 cpack
 
 # Test install
-apt-get install -y ./kafe-cli*.deb ./libkafe*.deb
+rpm -i ./kafe-cli*.rpm ./libkafe*.rpm
 env kafe about
 
 # Fix permissions

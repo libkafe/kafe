@@ -1,4 +1,4 @@
-FROM fedora:32
+FROM fedora:38
 
 RUN yum -y update && \
     yum -y install \
@@ -13,7 +13,7 @@ RUN yum -y update && \
         libssh-devel \
         libgit2-devel
 
-ENV CC /usr/bin/clang-10
-ENV CXX /usr/bin/clang++-10
+ENV CC /usr/bin/clang-16
+ENV CXX /usr/bin/clang++-16
 
-CMD /kafe/dist/fedora/32/build-dist.sh
+CMD /kafe/dist/fedora/38/build-dist.sh
